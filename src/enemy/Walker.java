@@ -26,7 +26,7 @@ public class Walker extends Enemy{
 		lock_Trans = true;
 		
 		//워커의 기본 생명력 50
-		enemy_HP = 50;
+		enemy_HP = 500;
 		
 	}
 	
@@ -132,10 +132,10 @@ public class Walker extends Enemy{
 						enemy_Point.x += 2;
 					}
 					
-					//좌우로 움직일 범위 설정
-					if((left_Bound_Site+100) >= enemy_Point.x){
+					//좌우로 움직일 범위 설정 적군이 영웅을 발견 못했을때 경계 범위를 블럭 전체로 잡는다.
+					if((left_Bound_Site - 10) >= enemy_Point.x){
 						move_Site = false;
-					}else if((right_Bound_Site-100) <= enemy_Point.x){
+					}else if((right_Bound_Site - 20) <= enemy_Point.x){
 						move_Site = true;
 					}
 					
@@ -177,10 +177,10 @@ public class Walker extends Enemy{
 						}
 					}
 					
-					//좌우로 움직일 범위 설정
-					if((left_Bound_Site+100) >= enemy_Point.x){
+					//좌우로 움직일 범위 설정 적군의 공격범위에서는 끝까지 따라오도록
+					if((left_Bound_Site) >= enemy_Point.x){
 						move_Site = false;
-					}else if((right_Bound_Site-100) <= enemy_Point.x){
+					}else if((right_Bound_Site) <= enemy_Point.x){
 						move_Site = true;
 					}
 					
@@ -188,10 +188,6 @@ public class Walker extends Enemy{
 				
 			}
 		}
-		
-		
-		
-	
 }
 
 

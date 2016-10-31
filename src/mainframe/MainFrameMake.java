@@ -15,6 +15,7 @@ import character.Hero;
 import enemy.Enemy;
 import enemy.Walker;
 import mapData.Block;
+import mapData.Stage;
 import weapon.Pistol;
 import weapon.Weapon;
 
@@ -26,7 +27,7 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 	int height = 700;
 	
 	//현재 나의 스테이지
-	int stage_Num = 1;
+	int stage_Num = 0;
 	
 	//이미지를 불러오기 위한 툴킷
 	Toolkit tk = Toolkit.getDefaultToolkit();
@@ -49,6 +50,8 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 	//기본 적군 생성
 	Enemy enemy;
 	
+	//스테이지를 생성한다
+	Stage stage;
 	
 	//다음 스테이지로 넘어 갈 것인가.
 	boolean end_Stage;
@@ -111,18 +114,17 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 		//주인공 생성
 		mainCh = new Hero();
 		
-		//기본 적군 워커 생성
-		enemy_Process();
 		
 		//스테이지 true 가 되면 다음 스테이지로 넘어감
-		end_Stage = false;
+		end_Stage = true;
 		
 		addKeyListener(this); //키보드 이벤트 실행
 		th = new Thread(this); 	  //스레드 생성
 		th.start(); 		  //스레드 시작
 		
 		
-		
+		//스테이지 1 생성
+		stage = new Stage();
 		
 		
 		attack = false; //공격 상태 설정 
@@ -154,6 +156,9 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 		//적군을 그린다.
 		draw_Enemy();
 		
+		//스테이지를 그린다.
+		draw_Stage();
+		
 		//화면에 버퍼에 그린 그림을 가져와 그리기
 		g.drawImage(buffImage, 0, 0, this);
 	}
@@ -172,10 +177,44 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 		
 		//다음 스테이지로 넘어감
 		if(end_Stage){
+			stage_Num++; //다음 스테이지로 넘어감 //현 위치 초기화 1스테이지
 			
+			//스테이지넘버를 한번 반영해서 스테이지를 만든다.
+			stage.map_Stage(stage_Num);
+
+			//기본 적군 워커 생성
+			enemy_Process(stage_Num);
+
 			end_Stage = false;
-			stage_Num++; //다음 스테이지로 넘어감
+			
 		}
+		
+		//생성된 스테이지의 블록을 그려야함 
+		int temp = 0;
+		for(int i=0; i<stage.get_Block().size(); i++){
+			buffg.drawRect(stage.get_Block().get(i).get_Left_Top_Point().x,
+					stage.get_Block().get(i).get_Left_Top_Point().y,
+					stage.get_Block().get(i).get_Widht(), 
+					stage.get_Block().get(i).get_Height());
+			
+		
+			//충돌 함수 호출 1이면 벽과 캐릭터
+			crash_Decide_Block(mainCh, stage.get_Block().get(i));
+		
+			//캐릭터가 모든 발판을 밟고 있지 않을때 추락중이다.
+			if(!stage.get_Block().get(i).get_Set_Contect()){
+				temp++;
+			}
+			//발판 숫자만큼 false 이면 발판을 밝고 있지않음 
+			if(temp == stage.get_Block().size()){
+				mainCh.auto_Jump_Down();
+			}
+		
+		}
+		
+	
+		
+		
 	}
 	
 	
@@ -197,7 +236,7 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 			
 			for(int j=0; j<enemy_List.size(); j++){
 			enemy = (Enemy) enemy_List.get(j);
-			carash_Decide(weapon.getPoint().x, weapon.getPoint().y, enemy, enemy.get_Move_Site(), 2);
+			crash_Decide_Enemy(weapon, enemy, enemy.get_Move_Site());
 			
 			
 			
@@ -213,57 +252,224 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 	}
 	
 	//충돌 판정 함수, 충돌은 2중 바운딩렉트로 구한다. 1차 는 큰 사각형 2차는 조각난 사각형과 대조를한다 일단 1차 바운딩 구조만 생각하도록 한다.
-	private int object_Width; //판정의 범위를 연산하기 위한 템프 변수
-	private int object_Height; //판정의 범위를 연산하기 위한 템프 변수
+	//private int object_Width; //판정의 범위를 연산하기 위한 템프 변수
+	//private int object_Height; //판정의 범위를 연산하기 위한 템프 변수
 	
-	public void carash_Decide(int x_Point,int y_Point, Enemy enemy, boolean get_Site, int what_Object){ //get_Site = 탐지구역이 좌측인지 우측인지
-		//what_Object = 1 이면 캐릭터, 2 이면 총알
-		if(what_Object == 1){	//캐릭터의 크기
-			object_Width = 30;
-			object_Height = 45;
+	private boolean jump_Up_Lock_Temp = false; //올라가는 도중에는 벽위에 안착 불가능
+	
+	private int auto_Jump_Down_Head_Flag = 0; //머리 끼임 현상 방지
+	
+	//충돌 체크 맵과 메인 캐릭터 캐릭터 x,y
+	public void crash_Decide_Block(Hero hero, Block block){ //what_Object 1 일때 벽과 캐릭터 충돌
+
+		//올라가는중일때 안착 불가
+		if(!mainCh.get_Jump_State()){
+			jump_Up_Lock_Temp = true;
+		}
+		
 			
-				if(get_Site){ //좌측을 탐지할때.
-					
-					//System.out.println("좌측 이동 캐릭터 위치 : " + enemy.get_enemy_Point().x + ", 캐릭터 좌측 시야 : " + (enemy.get_enemy_Point().x - enemy.get_Range_Site_Width()));
-					if((x_Point+object_Width) < (enemy.get_Range_Site_Width_Left_Point() - enemy.get_Range_Site_Width_Right_Point()) || 
-							x_Point > (enemy.get_Range_Site_Width_Left_Point() - enemy.get_Range_Site_Width_Right_Point()+enemy.get_Range_Site_Width_Right_Point()) ||
-							(y_Point+object_Height) < enemy.get_range_Site_Height_Top_Point() ||
-							y_Point > (enemy.get_range_Site_Height_Top_Point()+enemy.get_range_Site_Height_Bottom_Point())){
-						
-						enemy.set_Not_Find_Hero(); //캐릭터를 찾지 못했을때.
-						
-						
-					}else {
-						System.out.println("충돌 판정");
-						enemy.set_Find_Hero(mainCh.get_Hero_X_Point()); //캐릭터를 찾았을때
-						
-					}
-					
-				}else { //우측 탐지할때
-					if((x_Point+object_Width) < (enemy.get_Range_Site_Width_Left_Point() ) || 
-							x_Point > (enemy.get_Range_Site_Width_Left_Point()+enemy.get_Range_Site_Width_Right_Point()) ||
-							(y_Point+object_Height) < enemy.get_range_Site_Height_Top_Point() ||
-							y_Point > (enemy.get_range_Site_Height_Top_Point()+enemy.get_range_Site_Height_Bottom_Point())){
-						enemy.set_Not_Find_Hero(); //캐릭터를 찾지 못했을때.
-					}else {
-						System.out.println("충돌 판정");
-						enemy.set_Find_Hero(mainCh.get_Hero_X_Point()); //캐릭터를 찾았을때
-						
-						
-					}
-				}
 			
-		}else if(what_Object == 2){ //총알의 두께
-			object_Width = 10;
-			object_Height = 10;
+			if((hero.get_Hero_X_Point()+hero.get_Hero_Width()) < (block.get_Left_Top_Point().x ) || 
+					hero.get_Hero_X_Point() > (block.get_Left_Top_Point().x+block.get_Widht()) ||
+					(hero.get_Hero_Y_Point()+hero.get_Hero_Height()) < block.get_Left_Top_Point().y ||
+					hero.get_Hero_Y_Point() > (block.get_Left_Top_Point().y+block.get_Height())){
+				
 			
-			if((x_Point+object_Width) < (enemy.get_enemy_Point().x ) || 
-					x_Point > (enemy.get_enemy_Point().x+enemy.get_Enemy_Width()) ||
-					(y_Point+object_Height) < enemy.get_enemy_Point().y ||
-					y_Point > (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
+				
+				//캐릭터가 땅을 밝지 않으면 false 벽을 밝고 있지 않을때는 떯어지도록 
+				block.set_Contect_F();
+				
+				
 				
 			}else {
-				System.out.println("충돌 판정");
+				//캐릭터가 땅을 밝으면 true
+				block.set_Contect_T();
+				
+				//캐릭터가 점프를 하지않고 떨어졌을때 중력 가속도를 초기화 한다.
+				mainCh.set_dgSum_Zero();
+				
+				//캐릭터의 머리가 벽의 바닥에 닿았을때
+				if(hero.get_Hero_Y_Point() >= block.get_Left_Top_Point().y + block.get_Height() - 20){
+					System.out.println("머리와 바닥 부딛힘");
+					
+					//캐릭터가 벽과 부딛히면 바로 아래쪽으로 떨어짐
+					mainCh.set_Jump_Hero_UP_DOWN();
+					
+					
+					//점프를 안하고 추락할때 끼었을때 끼지 않도록 해야한다.
+					//낀 값의 넓이를 구해서 뺀다.
+					auto_Jump_Down_Head_Flag++;
+					if(auto_Jump_Down_Head_Flag >= 2){
+					mainCh.auto_Jump_Down_Head(block.get_Left_Top_Point().y + block.get_Height() - hero.get_Hero_Y_Point());
+					}
+					
+				}else 
+				//캐릭터의 하단이 발판의 상단이 겹쳤을때 멈출 지점 알려준다.
+				if(hero.get_Hero_Y_Point()+hero.get_Hero_Height()  <=  block.get_Left_Top_Point().y + 20){
+					//System.out.println("위에 밝고 있음");
+				
+				//끼임이 발생하면 연속적인 동작이 발생함으로 연속적인 동작이 발생하였을때 감산을 해준다.
+				auto_Jump_Down_Head_Flag = 0;
+					
+				//캐릭터가 점프했다가 아래로 내려오는 도중에만 벽 위에 올라 설수 있도록 설정 && 낙하시에 제대로 설수 있도록 설정
+				if(jump_Up_Lock_Temp){
+					
+					//벽위로 띄었을때 벽위에 안착 시키기위한 함수
+					mainCh.set_Hero_Y_Point(block.get_Left_Top_Point().y-hero.get_Hero_Height());
+					//캐릭터가 다시 위치 해야 할 곳 지정해줌 && 점프 중이 아닐때만 초기화 할수 있도록 해야한다.
+					mainCh.jump_Move_Stop(mainCh.get_Hero_Y_Point());
+					
+					jump_Up_Lock_Temp = false;
+					
+				}
+					
+					
+					//위에 밝을때까지 떨어지다가 밝고 있음 if 문에 들어오면 점프 중지 로 들어온다.
+					
+				}//캐릭터 우측과 벽의 좌측이 박았을때
+				else if(hero.get_Hero_X_Point() + hero.get_Hero_Width() <= block.get_Left_Top_Point().x + 25){
+					System.out.println("벽의 왼쪽 면 부딛힘");
+					//오른쪽으로 전진 못하도록 막아야함
+					mainCh.stop_Move_Right(hero.get_Hero_X_Point());
+				}
+				//캐릭터 좌측과 벽의 우측이 박았을때
+				else if(hero.get_Hero_X_Point() >= block.get_Left_Top_Point().x + block.get_Widht() - 25){
+					System.out.println("벽의 오른쪽 면 부딛힘");
+					//왼쪽으로 전진 못하도록 막아야함
+					mainCh.stop_Move_Leftt(hero.get_Hero_X_Point());
+					
+				}
+				else {
+					block.set_Contect_F();//캐릭터가 땅을 밝지 않으면 false 벽을 밝고 있지 않을때는 떯어지도록 
+				}
+
+				
+			}
+			
+		}
+		
+	
+	//적군과 블록의 충돌 검사 떨어지다가 맞물려야한다.
+	public void crash_Decide_Enemy_Block(Block block, Enemy enemy){
+		
+		//떨어지면 작동
+		if(enemy.get_Down_Start()){
+		
+			//xpoint = 블럭의 x 좌표
+			if((block.get_Left_Top_Point().x + block.get_Widht()) <= (enemy.get_enemy_Point().x ) || 
+					block.get_Left_Top_Point().x >= (enemy.get_enemy_Point().x+enemy.get_Enemy_Width()) ||
+					(block.get_Left_Top_Point().y + block.get_Height()) <= enemy.get_enemy_Point().y ||
+					block.get_Left_Top_Point().y-1 >= (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
+			
+			
+			//enemy.get_Enemy_Exit_Yoint(1000);
+			
+		}else{
+			System.out.println("적군 땅에 닿아 있음");
+			
+			
+			
+			//닿아 있을때 발판의 위치를 리턴한다, 적군을 블록위에 안착시킨다.
+			enemy.get_Enemy_Exit_Yoint(block.get_Left_Top_Point().y  - enemy.get_Enemy_Height() );
+			enemy.init_Bound_Site(block.get_Left_Top_Point().x, (block.get_Widht() + block.get_Left_Top_Point().x), block.get_Left_Top_Point().y - block.get_Height());
+			
+			//추적 알고리즘도 같이 떨궈야한다.
+			enemy.init_Range_Site(enemy.get_enemy_Point().x, enemy.get_enemy_Point().y);
+			
+		}
+		
+		}
+	}
+	
+	//충돌 체크 함수 캐릭터와 총알 등 
+	public void crash_Decide_Enemy(Hero hero, Enemy enemy, boolean get_Site){ //get_Site = 탐지구역이 좌측인지 우측인지
+		//what_Object = 1 이면 캐릭터, 2 이면 총알
+		
+			
+				if(get_Site){ //좌측을 탐지할때. 사각형의 범위가 캐릭터의 좌측부터 시작하기 때문에 넉백 계산시에 캐릭터의 넓이 만큼 경계 범위를 x 축의 범위(width)에 더해주어여한다. 
+					
+					//System.out.println("좌측 이동 캐릭터 위치 : " + enemy.get_enemy_Point().x + ", 캐릭터 좌측 시야 : " + (enemy.get_enemy_Point().x - enemy.get_Range_Site_Width()));
+					if((hero.get_Hero_X_Point()+hero.get_Hero_Width()) < (enemy.get_Range_Site_Width_Left_Point() - enemy.get_Range_Site_Width_Right_Point()+hero.get_Hero_Width()) || 
+							hero.get_Hero_X_Point() > (enemy.get_Range_Site_Width_Left_Point() - enemy.get_Range_Site_Width_Right_Point()+hero.get_Hero_Width()+enemy.get_Range_Site_Width_Right_Point()) ||
+							(hero.get_Hero_Y_Point()+hero.get_Hero_Height()) < enemy.get_range_Site_Height_Top_Point() ||
+							hero.get_Hero_Y_Point() > (enemy.get_range_Site_Height_Top_Point()+enemy.get_range_Site_Height_Bottom_Point())){
+						
+						enemy.set_Not_Find_Hero(); //캐릭터를 찾지 못했을때.
+						
+						
+					}else {
+						//System.out.println("충돌 판정");
+						enemy.set_Find_Hero(mainCh.get_Hero_X_Point()); //캐릭터를 찾았을때
+						
+						//캐릭터와 적군이 직접 닿았을때. 좌측방향
+						if((hero.get_Hero_X_Point()+hero.get_Hero_Width()) < (enemy.get_enemy_Point().x - enemy.get_Enemy_Width()) || 
+								hero.get_Hero_X_Point() > (enemy.get_enemy_Point().x - enemy.get_Enemy_Width()+enemy.get_Enemy_Width()) ||
+								(hero.get_Hero_Y_Point()+hero.get_Hero_Height()) < enemy.get_enemy_Point().y ||
+								hero.get_Hero_Y_Point() > (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
+							
+						}else{
+							//좌측방향 넉백
+							hero.left_Knock_Back();
+							System.out.println("a");
+						}
+						
+						
+					}
+					
+					
+					
+				}else { //우측 탐지할때 경계 
+					if((hero.get_Hero_X_Point()+hero.get_Hero_Width()) < (enemy.get_Range_Site_Width_Left_Point() ) || 
+							hero.get_Hero_X_Point() > (enemy.get_Range_Site_Width_Left_Point()+enemy.get_Range_Site_Width_Right_Point()) ||
+							(hero.get_Hero_Y_Point()+hero.get_Hero_Height()) < enemy.get_range_Site_Height_Top_Point() ||
+							hero.get_Hero_Y_Point() > (enemy.get_range_Site_Height_Top_Point()+enemy.get_range_Site_Height_Bottom_Point())){
+						enemy.set_Not_Find_Hero(); //캐릭터를 찾지 못했을때.
+						
+						
+						
+					}else {
+						//System.out.println("충돌 판정");
+						enemy.set_Find_Hero(mainCh.get_Hero_X_Point()); //캐릭터를 찾았을때
+						
+						//우측 면과 영웅이 닿았을때.
+						if((hero.get_Hero_X_Point()+hero.get_Hero_Width()) < (enemy.get_enemy_Point().x ) || 
+								hero.get_Hero_X_Point() > (enemy.get_enemy_Point().x + enemy.get_Enemy_Width()) ||
+								(hero.get_Hero_Y_Point()+hero.get_Hero_Height()) < enemy.get_enemy_Point().y ||
+								hero.get_Hero_Y_Point() > (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
+					
+						}else {
+							//우측방향 넉백
+							hero.right_Knock_Back();
+						}
+						
+					}
+					
+					
+					
+					
+					
+				}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//충돌 체크 함수 캐릭터와 총알 등 
+	public void crash_Decide_Enemy(Weapon weapon, Enemy enemy, boolean get_Site){ //get_Site = 탐지구역이 좌측인지 우측인지
+
+			
+			if((weapon.getPoint().x+weapon.get_Weapon_Width()) < (enemy.get_enemy_Point().x ) || 
+					weapon.getPoint().x > (enemy.get_enemy_Point().x+enemy.get_Enemy_Width()) ||
+					(weapon.getPoint().y+weapon.get_Weapon_Height()) < enemy.get_enemy_Point().y ||
+					weapon.getPoint().y > (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
+				
+			}else {
+				//System.out.println("충돌 판정");
 				
 				
 				//피격시 적군의 에너지를 감소시킨다.
@@ -288,17 +494,18 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 					enemy.knockback(false);
 				}
 				
+				
+				//넉백 하다가 발판보다 거리가 넘어가게되면 추락 시작
+				if(enemy.get_enemy_Point().x >= enemy.get_Right_Bound_Site() ||
+						enemy.get_enemy_Point().x + 30 <= enemy.get_Left_Bound_Site()){ //우측으로 떨어지고 좌측으로 떨어지고
+					enemy.set_Down_Start_True();
+				}
+				
+				
+				
 				weapon.set_Remove_Bullet_Choice(); //충돌 되면 총알의 상태를 삭제 상태로
-				
-				
-				
-			}
-			
-			
 			
 		}
-		
-		
 		
 	}
 	
@@ -319,7 +526,13 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 			//enemy.enemy_Move();
 			
 			//캐릭터와 몬스터 충돌판정 함수 호출
-			carash_Decide(mainCh.get_Hero_X_Point(), mainCh.get_Hero_Y_Point(), enemy, enemy.get_Move_Site(), 1);
+			crash_Decide_Enemy(mainCh, enemy, enemy.get_Move_Site());
+			
+			
+			//땅하고 적군하고 출동판정 땅에 떨어지고있을때만 하면 되긴 한다.
+			for(int j=0; j< stage.get_Block().size(); j++ ){
+			crash_Decide_Enemy_Block(stage.get_Block().get(j), enemy);
+			}
 			
 			//탐지 구역 그리기
 			if(enemy.get_Move_Site()){ //좌측으로 갈때
@@ -338,12 +551,36 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 	
 	
 	//스테이지가 시작될때마다 적군 숫자를 파라메터로 받고 생성하고 해야 할 듯 하다.
-	public void enemy_Process(){
-		enemy = new Walker(20, width, height-100); //20, width 는 경계 범위 지정, height 는 몬스터가 밝고 있는 블럭의 높이
+	public void enemy_Process(int stage_Num){
+		
+		
+		if(stage_Num == 1){ //1스테이지 일때 몬스터 배치
+		enemy = new Walker(stage.get_Block().get(0).get_Left_Top_Point().x, 
+				stage.get_Block().get(0).get_Left_Top_Point().x+stage.get_Block().get(0).get_Widht(), 
+				stage.get_Block().get(0).get_Left_Top_Point().y - 70); //20, width 는 경계 범위 지정, height 는 몬스터가 밝고 있는 블럭의 높이
+		
+		//enemy_List.add(enemy);
+		
+		enemy = new Walker(stage.get_Block().get(1).get_Left_Top_Point().x, 
+				stage.get_Block().get(1).get_Left_Top_Point().x + stage.get_Block().get(1).get_Widht(), 
+				stage.get_Block().get(1).get_Left_Top_Point().y - 70); //20, width 는 경계 범위 지정, height 는 몬스터가 밝고 있는 블럭의 높이
+		
 		enemy_List.add(enemy);
 		
-		enemy = new Walker(20, width, height-200); //20, width 는 경계 범위 지정, height 는 몬스터가 밝고 있는 블럭의 높이
-		enemy_List.add(enemy);
+		
+		enemy = new Walker(stage.get_Block().get(2).get_Left_Top_Point().x, 
+				stage.get_Block().get(2).get_Left_Top_Point().x + stage.get_Block().get(2).get_Widht(), 
+				stage.get_Block().get(2).get_Left_Top_Point().y - 70); //20, width 는 경계 범위 지정, height 는 몬스터가 밝고 있는 블럭의 높이
+		
+		//enemy_List.add(enemy);
+		
+		////////////////////////////////////////////////////////위 쪽에 1스테이지의  워커 부분 추가
+		
+		
+		
+		}
+		System.out.println(stage.get_Block().get(1).get_Left_Top_Point().x + "  " + stage.get_Block().get(1).get_Widht());
+		
 		
 	}
 	
@@ -386,12 +623,18 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 				bullet_Process();//총알 생성 함수 호출
 				
 				
+				
+				
+				
 				//점프 실행 매소드
 				if(jump){
 					
 					mainCh.set_Hero_Jumping();
 				}
-				mainCh.jump_Move(mainCh.get_Hero_Y_Point());
+				
+				//캐릭터가 밟고있는 발판의 높이가 되어야한다.
+				mainCh.jump_Move();
+				
 				
 				
 				repaint(); //화면을 지웠다 다시 그리기
@@ -403,6 +646,8 @@ class MainFrameMake extends JFrame implements KeyListener, Runnable{
 		}
 	}
 
+	
+	
 	
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//키 핸들러

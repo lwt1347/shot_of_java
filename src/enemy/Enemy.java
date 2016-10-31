@@ -43,7 +43,12 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 	//적군의 생명력
 	protected int enemy_HP;
 	
+	//적군 추락 시작 true 일때
+	protected boolean down_Start;
 	
+	//중력 가속도
+	private int g = 1;
+	private int gSum;
 	
 	//스레드 생성
 	Thread th;
@@ -63,8 +68,13 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 		range_Site_Width_Right_Point = 300;
 		range_Site_Height_Bottom_Point = 50;
 		
+		
+		//down_Start 가 true 이가 되면 추락 시작
+		down_Start = false;
+		
+		
 		//일단 기본적으로 100,600 에 생성
-		enemy_Point = new Point(200, bottom_Bound_Site);
+		enemy_Point = new Point(right_Bound_Site, bottom_Bound_Site);
 		
 		
 		//적 영웅 탐지 사각형 범위 생성 위치값 동일
@@ -87,14 +97,15 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 		th.start(); 		  //스레드 시작
 	}
 	
-	//몬스터가 히어로 쫒는 것을 종료했을때 탐색 범위를 원위치 시킨다.
-	public void init_Range_Site(){
+	//몬스터가 히어로 쫒는 것을 종료했을때 탐색 범위를 원위치 시킨다, 몬스터 발판 변경후 경계지역 초기화
+	public void init_Range_Site(int enemy_Point_X, int enemy_Point_Y){
 		//range_Site_Width_Right_Point = 300;
 		//range_Site_Height_Bottom_Point = 50;
 		
-		//range_Site_Width_Left_Point = enemy_Point.x;
-		//range_Site_Height_Top_Point = enemy_Point.y;
+		range_Site_Width_Left_Point = enemy_Point_X;
+		range_Site_Height_Top_Point = enemy_Point_Y - gSum;
 	}
+	
 	
 	
 	public void init_Bound_Site(int left_Bound_Site, int right_Bound_Site, int bottom_Bound_Site){ 
@@ -126,10 +137,10 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 				}
 				
 				//좌우로 움직일 범위 설정
-				if((left_Bound_Site+100) >= enemy_Point.x){
+				if((left_Bound_Site) >= enemy_Point.x){
 					move_Site = false;
 					
-				}else if((right_Bound_Site-100) <= enemy_Point.x){
+				}else if((right_Bound_Site) <= enemy_Point.x){
 					move_Site = true;
 					
 				}
@@ -137,9 +148,10 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 		}else { //적 영웅을 발견하게 되면 적 영웅을 추격한다.
 			
 		}
-		
-		
 	}
+	
+	
+	
 	
 	//경계 구역 사각형 값 리턴
 	public int get_Range_Site_Width_Right_Point(){
@@ -191,6 +203,14 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 	
 	
 	
+	//적군 경계범위 리턴 좌측값
+	public int get_Left_Bound_Site(){
+		return left_Bound_Site;
+	}
+	//우측값
+	public int get_Right_Bound_Site(){
+		return right_Bound_Site;
+	}
 	
 	
 	
@@ -225,6 +245,13 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 				
 				//자바 멀티 쓰레드 적군의 움직임은 여기서
 				enemy_Move();
+				
+				//적군 발판에서 밀려서 땅으로 떨어지는것
+				if(down_Start){
+					enemy_Down_Algorithm();
+				}
+				
+				
 				Thread.sleep(20); //20milli sec 로 스레드 돌리기
 				
 			}
@@ -232,6 +259,61 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 			
 		}
 	}
+	
+	
+	
+	//적군 추락 알고리즘
+	public void enemy_Down_Algorithm(){
+		 //낙하 과속 방지
+		 if(gSum >= 15){
+			 gSum = 15;
+		 }
+		 
+		 //떨어지면서 확인을 해야한다.
+		 gSum += g;
+		 enemy_Point.y += gSum;
+		 
+		 //다른 발판에 닿았을때 추락을 중지해야 하며 다시금 경계위치를 지정해야한다.
+		 if(End_Y_Point < enemy_Point.y){ //이때 중지
+			 
+			 //적군과 바닥이 맞닿는 지점을 적군의 y 좌표로 설정한다. [적군 착지하면 블록위에 안착시킨다.]
+			 enemy_Point.y = End_Y_Point;
+			 //추락을 중지하고 중력 가속도를 0 으로 초기화
+			 set_Down_Start_False();
+			 //닿은 사각형 정보 가져와야함
+			 
+			
+			 
+			 //3개 값을 입력 경계시작 위치, 종료위치, y 포인트
+			 //init_Bound_Site();
+			
+		 }
+	}
+	
+	int End_Y_Point = 1000;
+	//적군이 새롭게 놓이 y 포인트 받아
+	public void get_Enemy_Exit_Yoint(int End_Y_Point){
+		this.End_Y_Point = End_Y_Point;
+	}
+
+	
+	
+	//적군이 발판에서 벗어나면 추락시작
+	public void set_Down_Start_True(){
+		down_Start = true;
+	}
+	public void set_Down_Start_False(){
+		//여기서 발판의 정보를 가져와서 뿌려야함
+		End_Y_Point = 1000; //초기화
+		gSum = 0;
+		down_Start = false;
+	}
+	public boolean get_Down_Start(){
+		return down_Start;
+	}
+	
+	
+	
 	
 	//공격으로 몬스터 방향 전환
 	public void set_Move_Site(boolean flag){

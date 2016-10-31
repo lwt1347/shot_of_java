@@ -10,6 +10,9 @@ public class Block {
 	//넓이
 	private int width;
 	
+	//캐릭터와 접척 여부
+	private boolean contact;
+	
 	//높이
 	private int height;
 	
@@ -23,6 +26,9 @@ public class Block {
 		this.width = width;
 		this.height = height;
 		
+		//접촉여부
+		contact = false;
+		
 	}
 	
 	//리턴으로 객체를 하지 않는 이유는 private 보안상의 이유로
@@ -33,16 +39,26 @@ public class Block {
 	}
 	
 	//넓이를 반환한다.
-	public int widht(){
+	public int get_Widht(){
 		return width;
 	}
 	
 	//높이를 반환한다.
-	public int height(){
+	public int get_Height(){
 		return height;
 	}
 	
+	//접촉시에 true
+	public void set_Contect_T(){
+		contact = true;
+	}
+	public void set_Contect_F(){
+		contact = false;
+	}
 	
+	public boolean get_Set_Contect(){
+		return contact;
+	}
 	
 	
 }

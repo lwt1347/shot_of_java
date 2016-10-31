@@ -19,12 +19,19 @@ public class Weapon {
 	//총알 충돌 판정시 삭제 하기 위함
 	private boolean bullet_Remove_Bollean; 
 	
+	//총알의 두께
+	private int weapon_Width;
+	private int weapon_Height;
+	
+	
 	//생성시 초기화, 총알 좌표 초기화	
 	Weapon(Point character_Point, boolean bullet_Side_LEFT_RIGHT) {
 		//총알 의 시작 좌쵸를 전달 받는 캐릭터의 x 좌쵸로 설정
 		//총알 의 시작 좌쵸를 전달 받는 캐릭터의 y 좌쵸로 설정
 		bullet_Point = new Point(character_Point.x, character_Point.y);
 		
+		weapon_Width = 10;
+		weapon_Height = 10;
 		
 		//총알의 기본 속도 10으로 생성
 		bullet_Speed = 10;
@@ -36,6 +43,14 @@ public class Weapon {
 		
 		bullet_Remove_Bollean = false;
 	}
+	//총알 두께 가져오기
+	public int get_Weapon_Width(){
+		return weapon_Width;
+	}
+	public int get_Weapon_Height(){
+		return weapon_Height;
+	}
+	
 	
 	//사라질 총알 
 	public void set_Remove_Bullet_Choice(){
