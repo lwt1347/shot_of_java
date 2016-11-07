@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+import enemy.Walker;
 import mapData.Block;
 
 public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionListener, MouseListener{
@@ -22,10 +23,19 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	Point end_Point;
 	
 	
+	boolean block_Make = false; //1번 블럭 생성 하기 위한 플래그
+	boolean walker_Make = false; //2번 워커 생성
 	
 	//벽돌에 집어 넣는다.
 	Block block;
+	Block block_1;
+	
+	//워커 
+	Walker walker;
+	
 	ArrayList<Block> array_Block;	
+	ArrayList<Walker> array_Walker;
+	
 	
 	//사각형 swap 변수
 	int temp = 0;
@@ -45,8 +55,13 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 		
 		array_Block = new ArrayList<Block>();
 		
+		array_Walker = new ArrayList<Walker>();
+		
 		setSize(1000, 1900);
 		setVisible(true);			   //프레임을 눈에 보이게 띄움	
+		
+		
+	
 		
 	}
 	
@@ -83,14 +98,19 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 		
 		
 		//어레이 된 박스 그림
-		for(int i=0; i<array_Block.size(); i++){
+		for(int i = 0; i<array_Block.size(); i++){
 			block = (Block) array_Block.get(i);
 			
 			g.drawRect(block.get_Left_Top_Point().x, block.get_Left_Top_Point().y, block.get_Widht() , block.get_Height() );
 			
-			
 		}
 		
+		//어레이된 워커 그리기
+		for(int i=0; i<array_Walker.size(); i++){
+			walker = (Walker) array_Walker.get(i);
+			
+			g.drawRect(walker.get_enemy_Point().x, walker.get_enemy_Point().y, walker.get_Enemy_Width(), walker.get_Enemy_Height());
+		}
 		
 		
 	}
@@ -102,8 +122,6 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 		case KeyEvent.VK_ENTER :
 			
 			//블럭의 좌표를 @로 나늬어 구분하고 줄 바꿈을 #으로 구분한다.
-			
-			
 			String str = "";
 			for(int i=0; i<array_Block.size(); i++){
 				block = (Block) array_Block.get(i);
@@ -111,12 +129,19 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 						block.get_Widht() + "@" + block.get_Height() + "#";
 				//System.out.println(block.get_Left_Top_Point().x);
 			}
+			str += "&";
+			//블럭과 워커의 분기는 $로 표기한다.
+			for(int i=0; i<array_Walker.size(); i++){
+				walker = (Walker) array_Walker.get(i);
+				str += walker.get_Left_Bound_Site() + "@" + walker.get_Right_Bound_Site() + "^" + walker.get_Bottom_Bound_Site() + "&";
+			}
+			
 			
 			//System.out.println(str);
 			
 			//파일 만들기
 			try{
-			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_1.txt"; //1스테이지로 만듬
+			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_2.txt"; //1스테이지로 만듬
 			
 			//파일 객체생성
 			File file = new File(fileName);
@@ -137,7 +162,26 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			
 			System.out.println("파일로 저장 되었습니다.");
 			break;
+			
+			//1번 = 블럭 생성 2번 = 적군 워커 생성 //범위 포인터 중복시 삭제
+			case KeyEvent.VK_1 : //블럭 생성
+				
+				block_Make = true;
+				walker_Make = false;
+			break;
+			
+			case KeyEvent.VK_2 : //블럭 생성
+				
+				block_Make = false;
+				walker_Make = true; //워커 생성
+				
+			break;
 		}
+		
+		
+		
+		
+		
 	}
 
 	@Override
@@ -160,6 +204,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	public void mouseDragged(java.awt.event.MouseEvent e) {
 		//마우스 드래그
 		//사각형이 그려지면서 완성된다.
+	
 		end_Point.x = e.getX();
 		end_Point.y = e.getY();
 		
@@ -209,7 +254,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	public void mouseReleased(java.awt.event.MouseEvent e) {
 		// TODO Auto-generated method stub
 		//마우스가 놓이땔 위치 바꿔 주던지 바꾸지 않는다.
-		
+		if(block_Make){ //블록 메이커 설정에서 사용
 				//배열에 넣기 위해서 계속 생성해주어야함
 				block = new Block(start_Point, 0, 0);
 		
@@ -238,14 +283,51 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 		
 		
 		
-		repaint();
-		
 		
 		for(int i=0; i<array_Block.size(); i++){
 			block = (Block) array_Block.get(i);
 			//System.out.println(block.get_Left_Top_Point().x);
-		}
+			
 
+			//발판 중복확인 중복된 것 삭제
+			for(int j = 0; j<array_Block.size(); j++){
+				if(i!=j){ //자기 자신과는 검사하지 않는다.
+					
+				block_1 = (Block) array_Block.get(j);
+				
+				if(block.get_Left_Top_Point().x + block.get_Widht() < block_1.get_Left_Top_Point().x ||
+				 block.get_Left_Top_Point().x > block_1.get_Left_Top_Point().x + block_1.get_Widht() ||
+				  block.get_Left_Top_Point().y + block.get_Height() < block_1.get_Left_Top_Point().y ||
+				  block.get_Left_Top_Point().y > block_1.get_Left_Top_Point().y + block_1.get_Height()){
+					
+					
+				}
+				else {
+					System.out.println("겹침");
+					array_Block.remove(j);
+					array_Block.remove(i);
+				}
+				
+				}
+			}
+		}
+	}	
+		
+		//워커 만들기
+		if(walker_Make){
+			walker = new Walker(start_Point.x, start_Point.x, start_Point.y);  //왜 움직이지?
+			array_Walker.add(walker);
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		repaint();
 		
 	}
 	//**********************마우스 리스너

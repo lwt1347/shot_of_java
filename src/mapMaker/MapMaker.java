@@ -15,7 +15,7 @@ public class MapMaker extends JFrame{
 		//프로그렘이 정상적으로 종료하도록 만들어 줍니다.
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		add(mapMakerPanel);
-		setSize(1000, 1900);//비율 1/2
+		setSize(1000, 1000);//
 		setVisible(true);
 	}
 }

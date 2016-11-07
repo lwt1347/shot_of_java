@@ -211,7 +211,10 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 	public int get_Right_Bound_Site(){
 		return right_Bound_Site;
 	}
-	
+	public int get_Bottom_Bound_Site(){
+		return bottom_Bound_Site;
+	}
+
 	
 	
 	
@@ -252,7 +255,7 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 				}
 				
 				
-				Thread.sleep(20); //20milli sec 로 스레드 돌리기
+				Thread.sleep(18); //20milli sec 로 스레드 돌리기
 				
 			}
 		}catch (Exception e) {

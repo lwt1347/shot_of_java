@@ -30,10 +30,21 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	//현재 나의 스테이지
 	int stage_Num = 0;
 	
-	
 	//횡으로 이동 시킨다.
 	int vertical_View = 0;
 	
+	
+	//총알 딜레이
+	protected int delay = 0;
+	protected int delay_End; //delay_End 까지 찰때마다 한발씩
+	protected boolean weapon_Number1_Flag = true; //1번 무기인 피스톨은 눌렀다 때야 공격가능
+	
+	protected boolean weapon_Number2_Flag = true; //2번 무기인 쌍 피스톨은 눌렀다 때야 공격가능
+	
+	protected boolean weapon_Number3_Flag = true; //3번 무기인 다연발 피스톨은 눌렀다 때야 공격가능
+	
+	//다연발 무기 5발 
+	protected int weapon_Number_3_Delay = 0; //3번 무기의 연속 발사 수 5로 제한
 	
 	//이미지를 불러오기 위한 툴킷
 	Toolkit tk = Toolkit.getDefaultToolkit();
@@ -58,6 +69,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	//스테이지를 생성한다
 	Stage stage;
+	
+	
+	
 	
 	//다음 스테이지로 넘어 갈 것인가.
 	boolean end_Stage;
@@ -135,6 +149,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		attack = false; //공격 상태 설정 
 		weapon_Number = 1;//무기의 상태, 기본 1 피스톨
+		//피스톨일때 딜레이 5 이면서 공격 키를 눌렀다 땠을때만 격발
+		delay_End = 5;
+		
 		
 		jump = false; //점프 상태설정
 		
@@ -165,8 +182,11 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//스테이지를 그린다.
 		draw_Stage();
 		
+		//캐릭터의 횡축을 가져온다
+		vertical_View = mainCh.get_Hero_Y_Point();
+		
 		//화면에 버퍼에 그린 그림을 가져와 그리기
-		g.drawImage(buffImage, 0, (height-300)-vertical_View, this);
+		g.drawImage(buffImage, 0, (height-1300)-vertical_View, this);
 	}
 	
 	//실제로 그림들을 그릴 부분
@@ -189,7 +209,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			stage.map_Stage(stage_Num);
 
 			//기본 적군 워커 생성
-			enemy_Process(stage_Num);
+			enemy_Process();
 
 			end_Stage = false;
 			
@@ -231,7 +251,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			weapon = (Weapon) bullet_List.get(i);
 			if(weapon instanceof Pistol){ //불릿 리스트에 정보가 피스톨로 변형 가능하다면.
 				//buffg.drawImage(bullet_Png, weapon.getPoint().x,  weapon.getPoint().y, this);
-				buffg.drawRect(weapon.getPoint().x,  weapon.getPoint().y, 10,  10); //사각형으로 일단 대체
+				buffg.drawRect(weapon.getPoint().x,  weapon.getPoint().y, weapon.get_Weapon_Width(),  weapon.get_Weapon_Height()); //사각형으로 일단 대체
 				
 				//피스톨 총알 제각기 의 방향성을 가지고 날아간다.
 				((Pistol) weapon).pistol_Move( weapon.get_Bullet_Side_LEFT_RIGHT() );
@@ -265,7 +285,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	private int auto_Jump_Down_Head_Flag = 0; //머리 끼임 현상 방지
 	
-	//충돌 체크 맵과 메인 캐릭터 캐릭터 x,y
+	//충돌 체크 맵과 메인 캐릭터 캐릭터 x,y 
 	public void crash_Decide_Block(Hero hero, Block block){ //what_Object 1 일때 벽과 캐릭터 충돌
 
 		//올라가는중일때 안착 불가
@@ -295,7 +315,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				mainCh.set_dgSum_Zero();
 				
 				//캐릭터의 머리가 벽의 바닥에 닿았을때
-				if(hero.get_Hero_Y_Point() >= block.get_Left_Top_Point().y + block.get_Height() - 20){
+				if(hero.get_Hero_Y_Point() >= block.get_Left_Top_Point().y + block.get_Height() - 15){
 					System.out.println("머리와 바닥 부딛힘");
 					
 					//캐릭터가 벽과 부딛히면 바로 아래쪽으로 떨어짐
@@ -311,7 +331,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					
 				}else 
 				//캐릭터의 하단이 발판의 상단이 겹쳤을때 멈출 지점 알려준다.
-				if(hero.get_Hero_Y_Point()+hero.get_Hero_Height()  <=  block.get_Left_Top_Point().y + 20){
+				if(hero.get_Hero_Y_Point()+hero.get_Hero_Height()  <=  block.get_Left_Top_Point().y + 25){
 					//System.out.println("위에 밝고 있음");
 				
 				//끼임이 발생하면 연속적인 동작이 발생함으로 연속적인 동작이 발생하였을때 감산을 해준다.
@@ -371,7 +391,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			//enemy.get_Enemy_Exit_Yoint(1000);
 			
 		}else{
-			System.out.println("적군 땅에 닿아 있음");
+			//System.out.println("적군 땅에 닿아 있음");
 			
 			
 			
@@ -449,10 +469,6 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 						}
 						
 					}
-					
-					
-					
-					
 					
 				}
 	}
@@ -557,53 +573,93 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	
 	//스테이지가 시작될때마다 적군 숫자를 파라메터로 받고 생성하고 해야 할 듯 하다.
-	public void enemy_Process(int stage_Num){
+	public void enemy_Process(){
 		
+		//enemy = new Walker(stage.get_Block().get(0).get_Left_Top_Point().x - 20,   //-20 인이유는 캐릭터를 블록 바깥 까지 밀어낼수 있도록하기 위함
+		//		stage.get_Block().get(0).get_Left_Top_Point().x+stage.get_Block().get(0).get_Widht(), 
+		//		stage.get_Block().get(0).get_Left_Top_Point().y - 70); //20, width 는 경계 범위 지정, height 는 몬스터가 밝고 있는 블럭의 높이
 		
-		if(stage_Num == 1){ //1스테이지 일때 몬스터 배치
-		enemy = new Walker(stage.get_Block().get(0).get_Left_Top_Point().x, 
-				stage.get_Block().get(0).get_Left_Top_Point().x+stage.get_Block().get(0).get_Widht(), 
-				stage.get_Block().get(0).get_Left_Top_Point().y - 70); //20, width 는 경계 범위 지정, height 는 몬스터가 밝고 있는 블럭의 높이
+		//enemy_List.add(enemy);
 		
-		enemy_List.add(enemy);
+	
 		
-		enemy = new Walker(stage.get_Block().get(1).get_Left_Top_Point().x, 
-				stage.get_Block().get(1).get_Left_Top_Point().x + stage.get_Block().get(1).get_Widht(), 
-				stage.get_Block().get(1).get_Left_Top_Point().y - 70); //20, width 는 경계 범위 지정, height 는 몬스터가 밝고 있는 블럭의 높이
-		
-		enemy_List.add(enemy);
-		
-		
-		enemy = new Walker(stage.get_Block().get(2).get_Left_Top_Point().x, 
-				stage.get_Block().get(2).get_Left_Top_Point().x + stage.get_Block().get(2).get_Widht(), 
-				stage.get_Block().get(2).get_Left_Top_Point().y - 70); //20, width 는 경계 범위 지정, height 는 몬스터가 밝고 있는 블럭의 높이
-		
-		enemy_List.add(enemy);
-		
-		////////////////////////////////////////////////////////위 쪽에 1스테이지의  워커 부분 추가
-		
-		
-		
+		//생성된 스테이지의 워커를 그려야함
+		for(int i=0; i<stage.get_Walker().size(); i++){
+			//추가된 워커들을 바로밑의 블록에 안착시킨다.
+			stage.get_Walker().get(i).set_Down_Start_True();
+			enemy_List.add(stage.get_Walker().get(i));
+			
 		}
-		System.out.println(stage.get_Block().get(1).get_Left_Top_Point().x + "  " + stage.get_Block().get(1).get_Widht());
-		
+	
+	
 		
 	}
-	
-	
-	
 	
 	//총알을 발사중인가 아닌가 총알을 생성하는 함수
 	public void bullet_Process(){
 		if(attack){ //참일때 총알을 생성한다.
 			
-			if(weapon_Number == 1){ //권총일때
+			if(weapon_Number == 1 && delay >= delay_End){ //권총일때
+				
 				pistol_Point = new Point(mainCh.get_Hero_X_Point(),mainCh.get_Hero_Y_Point()); //캐릭터의 좌쵸를 알아와서 위치 정보를 저장
 				weapon = new Pistol(pistol_Point, mainCh.get_Face_Side_LFET_RIGHT()); //캐릭터의 좌표 지점에 권총을 생성한다.
 				bullet_List.add(weapon); //권총의 공격을 불릿 리스트에 넣는다 블릿 리스z Weapon 클래스로 되어있다.
+				
+				
+				//피스톨 발사시 딜레이 초기화
+				delay = 0;
+				
+				//총알생성을 중지한다.. 한발쓰고 때었을떄 공격 가능
+				attack = false;
 			}
+			
+			
+			if(weapon_Number == 2 && delay >= delay_End){ //쌍 권총일때
+				
+				pistol_Point = new Point(mainCh.get_Hero_X_Point(),mainCh.get_Hero_Y_Point()); //캐릭터의 좌쵸를 알아와서 위치 정보를 저장
+				weapon = new Pistol(pistol_Point, mainCh.get_Face_Side_LFET_RIGHT()); //캐릭터의 좌표 지점에 권총을 생성한다.
+				bullet_List.add(weapon); //권총의 공격을 불릿 리스트에 넣는다 블릿 리스z Weapon 클래스로 되어있다.
+				
+				pistol_Point = new Point(mainCh.get_Hero_X_Point()-20,mainCh.get_Hero_Y_Point()+5); //캐릭터의 좌쵸를 알아와서 위치 정보를 저장
+				weapon = new Pistol(pistol_Point, mainCh.get_Face_Side_LFET_RIGHT()); //캐릭터의 좌표 지점에 권총을 생성한다.
+				bullet_List.add(weapon); //권총의 공격을 불릿 리스트에 넣는다 블릿 리스z Weapon 클래스로 되어있다.
+				
+				//피스톨 발사시 딜레이 초기화
+				delay = 0;
+				
+				//총알생성을 중지한다.. 한발쓰고 때었을떄 공격 가능
+				attack = false;
+			}
+			
+			
+			if(weapon_Number == 3 && delay >= delay_End-5 && weapon_Number_3_Delay <= 5){ //다연발 총일때 5발씩 쏘고 제자리
+				
+				pistol_Point = new Point(mainCh.get_Hero_X_Point(),mainCh.get_Hero_Y_Point()); //캐릭터의 좌쵸를 알아와서 위치 정보를 저장
+				weapon = new Pistol(pistol_Point, mainCh.get_Face_Side_LFET_RIGHT()); //캐릭터의 좌표 지점에 권총을 생성한다.
+				bullet_List.add(weapon); //권총의 공격을 불릿 리스트에 넣는다 블릿 리스z Weapon 클래스로 되어있다.
+				
+				
+				weapon_Number_3_Delay++;
+				
+				//총알생성을 중지한다.. 한발쓰고 때었을떄 공격 가능
+				//attack = false; //5발 발사 하면 되돌려 놓는다.
+			}else if(weapon_Number == 3){ //다연발이면서 딜레이를 돌려 놓을때.
+				//피스톨 발사시 딜레이 초기화
+				delay = 0;
+				weapon_Number_3_Delay = 0;
+				attack = false;
+			}
+			
+			
+			
+			
 		}
 	}
+	
+	
+	
+	
+	
 	
 	//총알 제거 함수
 	public void remove_Bullet(Weapon weapon, int i){
@@ -629,7 +685,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				bullet_Process();//총알 생성 함수 호출
 				
 				
-				
+				//총알 발사 딜레이
+				delay++;
 				
 				
 				//점프 실행 매소드
@@ -647,7 +704,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				
 				repaint(); //화면을 지웠다 다시 그리기
-				Thread.sleep(20); //20milli sec 로 스레드 돌리기
+				Thread.sleep(18); //20milli sec 로 스레드 돌리기
 				
 			}
 		}catch (Exception e) {
@@ -669,6 +726,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			break;
 			
 		case KeyEvent.VK_DOWN :
+			//앉기 기능
+			mainCh.set_Hero_Sit();
 			break;
 			
 		case KeyEvent.VK_LEFT :
@@ -680,8 +739,30 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			break;
 			
 		case KeyEvent.VK_A :
-			//공격중일때 총알을 생성한다.
-			attack = true;
+			
+			
+			
+			
+			//피스톨 / 기본 공격일때는 눌렀다 때야만 공격가능
+			if(weapon_Number == 1 && weapon_Number1_Flag){
+				//공격중일때 총알을 생성한다.
+				attack = true;
+				weapon_Number1_Flag = false; //눌렀을때만 발사 때었을때 true 재장전 가능
+			}
+			
+			if(weapon_Number == 2 && weapon_Number2_Flag){
+				//공격중일때 총알을 생성한다.
+				attack = true;
+				weapon_Number2_Flag = false; //눌렀을때만 발사 때었을때 true 재장전 가능
+			}
+			
+			if(weapon_Number == 3 && weapon_Number3_Flag){
+				//공격중일때 총알을 생성한다.
+				attack = true;
+				weapon_Number3_Flag = false; //눌렀을때만 발사 때었을때 true 재장전 가능
+			}
+			
+			
 			break;
 			
 		case KeyEvent.VK_S :
@@ -702,6 +783,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			break;
 			
 		case KeyEvent.VK_DOWN :
+			//놓였을때 서기
+			mainCh.set_Hero_Stand();
 			break;
 			
 		case KeyEvent.VK_LEFT :
@@ -713,14 +796,36 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			break;
 		case KeyEvent.VK_A :
 			//총알생성을 중지한다..
+		 //다연발이 아닐때
 			attack = false;
+			
+			
+			
+			weapon_Number1_Flag = true; //기본무기재사용 가능
+			
+			weapon_Number2_Flag = true; //2번 무기 재사용가능
+			
+			weapon_Number3_Flag = true;
 			break;
 			
 		case KeyEvent.VK_S :
 			//점프 종료
 			jump = false;
 			break;
+			
+		case KeyEvent.VK_1 : //총 바꾸기 기본총
+			weapon_Number = 1;//무기 변경
+			break;
+			
+		case KeyEvent.VK_2 : //총 바꾸기 쌍 피스톨
+			weapon_Number = 2;//무기 변경
+			break;
+		
+		case KeyEvent.VK_3 : //총 바꾸기 다연발 총
+			weapon_Number = 3;//무기 변경
+			break;
 		}
+		
 		
 	}
 

@@ -27,6 +27,11 @@ public class Hero extends JPanel{
 	//도착지점의 y좌표를 지정할 변수
 	int jump_Hero_Stop_Point_Y;
 	
+	//주인공 앉기 서기 플래그 true = 서있을때
+	private boolean set_Hero_Sit_Stand;
+	
+	//주인공 상태에 따라 속도 변화 ex) 앉기 / 서기
+	private int hero_Speed;
 	
 	//캐릭터가 보고있는 방향 좌측일때 true 우측 일때 false
 	boolean face_Side_LEFT_RIGHT;
@@ -44,7 +49,7 @@ public class Hero extends JPanel{
 	//히어로 기본 생성자
 	public Hero() {
 		x_Point = 100;
-		y_Point = 1000;
+		y_Point = 1700;
 		
 		//히어로 폭
 		hero_Width = 30;
@@ -61,9 +66,15 @@ public class Hero extends JPanel{
 		jump_Hero_UP_DOWN = true; //올라가는중
 		jump_Hero_Stop_Point = true; //true 일때 한번 실행
 		
+		//영웅 서있기
+		set_Hero_Sit_Stand = true;
+		
 		g = 1;//중력가속도
-		gSum = 15;
+		gSum = 0;
 		dgSum = 0;//낙하 가속도
+		
+		//영웅의 기본속도 = 5
+		hero_Speed = 5;
 		
 		//점프 스케줄링 0 으로 초기화
 		jump_Time_Schedule = 0;
@@ -90,10 +101,10 @@ public class Hero extends JPanel{
 	public synchronized void move(){  //synchronized 해당 함수가 작동하는 동안 동기화를 수행한다.
 		//좌우 움직임 컨트롤
 		if(x_Flag_Left){
-			x_Point -= 5;
+			x_Point -= hero_Speed;
 		}
 		if(x_Flag_Right){
-			x_Point += 5;
+			x_Point += hero_Speed;
 		}
 	}
 	
@@ -174,7 +185,7 @@ public class Hero extends JPanel{
 		//우측 벽 에 부딪혀서 오른쪽으로 제어 불가능
 		x_Flag_Right = false;
 		//왼쪽으로 -5 만큼씩 밀어줘야 벽으로 안들어가짐
-		x_Point -= 5;
+		x_Point -= 6;
 		//y_Point 는 약간의 버그 때문에 추가하였음, 몹한테 부딛히면 벽에 붙을 수 있기때문에 미세하게 움직이도록 함
 		//y_Point += 5;
 		
@@ -186,7 +197,7 @@ public class Hero extends JPanel{
 			//좌측 벽 에 부딪혀서 오른쪽으로 제어 불가능
 			x_Flag_Left = false;
 			//오른쪽으로 + 5 만큼씩 밀어줘야 벽으로 안들어가짐
-			x_Point += 5;
+			x_Point += 6;
 			//y_Point 는 약간의 버그 때문에 추가하였음, 몹한테 부딛히면 벽에 붙을 수 있기때문에 미세하게 움직이도록 함
 			//y_Point -= 5;
 		}
@@ -241,6 +252,25 @@ public class Hero extends JPanel{
 	public void set_Hero_Y_Point(int set_Y_Point){
 		y_Point = set_Y_Point;
 	}
+	
+	
+	
+	//주인공 서기/앉기
+	public void set_Hero_Sit(){ //주인공 앉기
+		if(set_Hero_Sit_Stand){
+		hero_Height = 25;
+		y_Point += 20;
+		set_Hero_Sit_Stand = false;
+		hero_Speed = 2; //영웅 이속 변경
+		}
+	}
+	public void set_Hero_Stand(){ //주인공 서기
+		set_Hero_Sit_Stand = true;
+		y_Point -= 20;
+		hero_Height = 45;
+		hero_Speed = 5; //영웅 이속 변경
+	}
+	
 	
 	//주인공 좌측이동
 	public void set_Hero_X_Left(){

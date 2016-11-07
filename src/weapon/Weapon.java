@@ -20,8 +20,11 @@ public class Weapon {
 	private boolean bullet_Remove_Bollean; 
 	
 	//총알의 두께
-	private int weapon_Width;
-	private int weapon_Height;
+	protected int weapon_Width;
+	protected int weapon_Height;
+	
+	
+	
 	
 	
 	//생성시 초기화, 총알 좌표 초기화	
@@ -30,8 +33,8 @@ public class Weapon {
 		//총알 의 시작 좌쵸를 전달 받는 캐릭터의 y 좌쵸로 설정
 		bullet_Point = new Point(character_Point.x, character_Point.y);
 		
-		weapon_Width = 10;
-		weapon_Height = 10;
+		
+		
 		
 		//총알의 기본 속도 10으로 생성
 		bullet_Speed = 10;
@@ -42,6 +45,7 @@ public class Weapon {
 		this.bullet_Side_LEFT_RIGHT = bullet_Side_LEFT_RIGHT;
 		
 		bullet_Remove_Bollean = false;
+		
 	}
 	//총알 두께 가져오기
 	public int get_Weapon_Width(){

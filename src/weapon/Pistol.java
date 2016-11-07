@@ -12,6 +12,11 @@ public class Pistol extends Weapon{
 			//피스톨의 기본 공격력
 			bullet_Power = 1;
 			
+			//권총의 기본크기
+			weapon_Width = 10;
+			weapon_Height = 10;
+			
+		
 		}
 		
 		//권총의 날아가는 방향을 계산 좌축 또는 우측
