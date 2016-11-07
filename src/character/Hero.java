@@ -44,7 +44,7 @@ public class Hero extends JPanel{
 	//히어로 기본 생성자
 	public Hero() {
 		x_Point = 100;
-		y_Point = 620;
+		y_Point = 1000;
 		
 		//히어로 폭
 		hero_Width = 30;
@@ -80,11 +80,11 @@ public class Hero extends JPanel{
 	
 	//히어로 넉백 적군이 영웅을 피격했을때. 좌측으로 넉백
 	public void left_Knock_Back(){
-		x_Point -= 10;
+		x_Point -= 5;
 	}
 	//우측으로 넉백
 	public void right_Knock_Back(){
-		x_Point += 10;
+		x_Point += 5;
 	}
 	
 	public synchronized void move(){  //synchronized 해당 함수가 작동하는 동안 동기화를 수행한다.
@@ -129,11 +129,11 @@ public class Hero extends JPanel{
 				 y_Point += gSum;
 			 }
 			 
-			
-			 
-			 
 		}
 	}
+	
+	
+	
 	
 	//점프를 멈출 시점을 정해준다.
 	public void jump_Move_Stop(int y_Stop){

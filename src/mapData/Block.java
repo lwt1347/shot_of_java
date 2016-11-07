@@ -31,6 +31,15 @@ public class Block {
 		
 	}
 	
+	//맵 메이커에서 벽돌을 만들기 위해 필요함
+	public void set_Block_Point_Width_Height(int x, int y, int width, int height){
+		block_Point.x = x;
+		block_Point.y = y;
+		this.width = width;
+		this.height = height;
+	}
+	
+	
 	//리턴으로 객체를 하지 않는 이유는 private 보안상의 이유로
 	
 	//좌상단 포인트와 넓이 높이를 리턴한다.

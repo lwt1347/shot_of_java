@@ -169,11 +169,11 @@ public class Walker extends Enemy{
 					//이동 속도 증가
 					if(move_Site){	//좌측으로 이동
 						if(hero.get_Hero_X_Point()+30 <= enemy_Point.x){ //좌측으로 캐릭터 보다 전진 하지 못하도록 = 캐릭터를 쫓아 가도록
-						enemy_Point.x -= 7;
+						enemy_Point.x -= 5;
 						}
 					}else {			//우측으로 이동
 						if(hero.get_Hero_X_Point()-30 >= enemy_Point.x){
-						enemy_Point.x += 7;
+						enemy_Point.x += 5;
 						}
 					}
 					

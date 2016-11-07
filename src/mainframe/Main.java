@@ -17,8 +17,13 @@ public class Main {
 	public static void main(String[] args){
 		
 		//메인 화면 만들기 위한 클레스 생성
-		MainFrameMake screen = new MainFrameMake();
+		MainFrame screen = new MainFrame();
 		
 	}
 }
+
+
+
+
+
 

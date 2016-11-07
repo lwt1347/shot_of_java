@@ -301,6 +301,14 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 	//적군이 발판에서 벗어나면 추락시작
 	public void set_Down_Start_True(){
 		down_Start = true;
+		
+		//떨어질떄 정지 시켜야함
+		if(move_Site){	//좌측으로 이동
+			enemy_Point.x += 15;
+		}else {			//우측으로 이동
+			enemy_Point.x -= 15;
+		}
+		
 	}
 	public void set_Down_Start_False(){
 		//여기서 발판의 정보를 가져와서 뿌려야함
