@@ -4,7 +4,7 @@ import java.awt.Point;
 
 
 //기본 총알의 부모 클래스
-public class Weapon {
+public class Weapon implements Runnable{
 	
 	//총알 좌표
 	protected Point bullet_Point;
@@ -23,7 +23,8 @@ public class Weapon {
 	protected int weapon_Width;
 	protected int weapon_Height;
 	
-	
+	//스레드 생성
+	Thread th;
 	
 	
 	
@@ -34,6 +35,8 @@ public class Weapon {
 		bullet_Point = new Point(character_Point.x, character_Point.y);
 		
 		
+		th = new Thread(this); 	  //스레드 생성
+		th.start(); 		  //스레드 시작
 		
 		
 		//총알의 기본 속도 10으로 생성
@@ -80,6 +83,41 @@ public class Weapon {
 	}
 	
 	
+	//총알 속도를 올리고 객체지향을위해 총알이 나가는 것을 쓰레드로 돌린다.
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		try {
+			
+			while(true){
+				pistol_Move(this.bullet_Side_LEFT_RIGHT);
+				Thread.sleep(4);
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	//총알이 날아갈 방향 정하기
+	public void set_Bullet_Side_LEFT(){ //왼쪽으로 진행
+		bullet_Side_LEFT_RIGHT = true;
+	}
+	public void bullet_Side_RIGHT(){ //오른쪽 으로 진행
+		bullet_Side_LEFT_RIGHT = false;
+	}
+	
+	//권총의 날아가는 방향을 계산 좌축 또는 우측
+			public synchronized void pistol_Move(boolean direction){
+				//참이면 왼쪽, 거짓이면 오른쪽 으로 이동
+				
+				if(direction){ //좌측
+					bullet_Point.x -= 8;
+				}else{// 우측
+					bullet_Point.x += 8;
+				}
+				
+			}
 	
 	
 }

@@ -1,5 +1,6 @@
 package mainframe;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -170,6 +171,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	}
 	
 	public void update(Graphics g){
+		
+		//색깔 입히기	
+		//buffg.setColor(Color.gray);
+		//buffg.fillRect(0, 0, width, height);
+		//buffg.setColor(Color.black);
+		
 		//실제로 그려진 그림을 가져온다.
 		draw();
 		
@@ -212,14 +219,21 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 
 			//기본 적군 워커 생성
 			enemy_Process();
-
+			
 			end_Stage = false;
 			
 		}
 		
 		//생성된 스테이지의 블록을 그려야함 
 		int temp = 0;
+		
+		
+		
+		
+		
+		
 		for(int i=0; i<stage.get_Block().size(); i++){
+			 //fillRect
 			buffg.drawRect(stage.get_Block().get(i).get_Left_Top_Point().x,
 					stage.get_Block().get(i).get_Left_Top_Point().y,
 					stage.get_Block().get(i).get_Widht(), 
@@ -256,7 +270,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				buffg.drawRect(weapon.getPoint().x,  weapon.getPoint().y, weapon.get_Weapon_Width(),  weapon.get_Weapon_Height()); //사각형으로 일단 대체
 				
 				//피스톨 총알 제각기 의 방향성을 가지고 날아간다.
-				((Pistol) weapon).pistol_Move( weapon.get_Bullet_Side_LEFT_RIGHT() );
+				//((Pistol) weapon).pistol_Move( weapon.get_Bullet_Side_LEFT_RIGHT() ); // -> 쓰레드로 변경
 				
 			}
 			
@@ -506,6 +520,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				enemy_List.remove(enemy);
 				}
 				
+				
 				//피격된 몬스터를 자신의 방향으로 달려오도록 해야한다. 즉 몬스터를 공격 상태로 변경해야한다.
 				if(enemy.get_enemy_Point().x >= mainCh.get_Hero_X_Point()){
 					enemy.set_Move_Site(true);
@@ -552,6 +567,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				//추적 알고리즘도 함께 움직야야한다.
 				enemy.init_Range_Site(stage.get_Walker().get(i).get_enemy_Point().x, stage.get_Walker().get(i).get_enemy_Point().y);
 				
+				//System.out.println("a");
+				
+				//에너미가 벽 너머로 밀린다면 삭제
+				if(enemy.get_enemy_Point().x + enemy.get_Enemy_Width() < 0 || enemy.get_enemy_Point().x > width){
+					enemy_List.remove(i); //벽너머로 밀린 적군 삭제
+				}
 				
 			}
 			
@@ -606,6 +627,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			//stage.get_Walker().get(i).set_Down_Start_True();
 			//추적 알고리즘도 같이 떨궈야한다.
 			//stage.get_Walker().get(i).init_Range_Site(stage.get_Walker().get(i).get_enemy_Point().x, stage.get_Walker().get(i).get_enemy_Point().y);
+			
+			//블록과 겹치는 적군이 있다면 블록 위로 올려준다.
+			for(int j=0; j<stage.get_Block().size(); j++){
+				stage.get_Walker().get(i).set_Down_Start_True(); //초기 생성시 맞닿은 벽위에 안착 시키기 위해서
+				crash_Decide_Enemy_Block(stage.get_Block().get(j), stage.get_Walker().get(i));
+			}
 			
 			enemy_List.add(stage.get_Walker().get(i));
 			
@@ -854,6 +881,13 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	public void keyTyped(KeyEvent e) {
 	}
 	///////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	
+	
+	//총알 쓰레드로 돌리고
+	//벽넘어가면 몬스터 없애고 
+	//여웅ㅇ이 벽넘어가면 리스타트
 	
 	
 	

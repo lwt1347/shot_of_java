@@ -20,15 +20,15 @@ public class Pistol extends Weapon{
 		}
 		
 		//권총의 날아가는 방향을 계산 좌축 또는 우측
-		public void pistol_Move(boolean direction){
+		//public void pistol_Move(boolean direction){
 			//참이면 왼쪽, 거짓이면 오른쪽 으로 이동
 			
-			if(direction){ //좌측
-				bullet_Point.x -= 15;
-			}else{// 우측
-				bullet_Point.x += 15;
-			}
+			//if(direction){ //좌측
+			//	bullet_Point.x -= 15;
+			//}else{// 우측
+			//	bullet_Point.x += 15;
+			//}
 			
-		}
+		//}
 		
 	}

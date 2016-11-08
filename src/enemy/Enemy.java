@@ -257,7 +257,7 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 				//적군 발판에서 밀려서 땅으로 떨어지는것
 				if(down_Start){
 					enemy_Down_Algorithm();
-					System.out.println("1");
+					//System.out.println("1");
 				}
 				
 				
@@ -313,9 +313,9 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 		
 		//떨어질떄 정지 시켜야함
 		if(move_Site){	//좌측으로 이동
-			enemy_Point.x += 15;
+			enemy_Point.x += 5;
 		}else {			//우측으로 이동
-			enemy_Point.x -= 15;
+			enemy_Point.x -= 5;
 		}
 		
 	}
