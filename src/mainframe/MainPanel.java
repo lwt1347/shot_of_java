@@ -185,6 +185,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//캐릭터의 횡축을 가져온다
 		vertical_View = mainCh.get_Hero_Y_Point();
 		
+		
+		
 		//화면에 버퍼에 그린 그림을 가져와 그리기
 		g.drawImage(buffImage, 0, (height-1300)-vertical_View, this);
 	}
@@ -192,10 +194,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	//실제로 그림들을 그릴 부분
 	public void draw(){
 		//(0,0) ~ (width,height) 까지 화면을 지웁니
-		buffg.clearRect(0, 0, width, height);
+		//buffg.clearRect(0, 0, width, height);
 		//프레임에 저장된 .png 이미지를 그려넣습니다.
 		//buffg.drawImage(hero_Png, mainCh.get_Hero_X_Point(), mainCh.get_Hero_Y_Point(), this);
-		buffg.drawRect(mainCh.get_Hero_X_Point(),   mainCh.get_Hero_Y_Point(), mainCh.get_Hero_Width(),  mainCh.get_Hero_Height()); //사각형으로 일단 대체
+		buffg.drawRect(mainCh.get_Hero_X_Point(),   mainCh.get_Hero_Y_Point(), mainCh.get_Hero_Width(),  mainCh.get_Hero_Height()); //캐릭터 사각형으로 일단 대체
 	}
 	
 	//스테이지 맵 을 그림 (블록)
@@ -490,6 +492,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					(weapon.getPoint().y+weapon.get_Weapon_Height()) < enemy.get_enemy_Point().y ||
 					weapon.getPoint().y > (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
 				
+				
+				
 			}else {
 				//System.out.println("충돌 판정");
 				
@@ -518,10 +522,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				
 				//넉백 하다가 발판보다 거리가 넘어가게되면 추락 시작
-				if(enemy.get_enemy_Point().x >= enemy.get_Right_Bound_Site() ||
-						enemy.get_enemy_Point().x + 30 <= enemy.get_Left_Bound_Site()){ //우측으로 떨어지고 좌측으로 떨어지고
-					enemy.set_Down_Start_True();
-				}
+				//if(enemy.get_enemy_Point().x >= enemy.get_Right_Bound_Site() ||
+				//		enemy.get_enemy_Point().x + 30 <= enemy.get_Left_Bound_Site()){ //우측으로 떨어지고 좌측으로 떨어지고
+				//	enemy.set_Down_Start_True();
+				//}
 				
 				
 				
@@ -538,6 +542,17 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		for(int i=0; i<enemy_List.size(); i++){
 			
 			enemy = (Enemy) enemy_List.get(i);
+			
+			
+			//발판보다 거리가 넘어가거나/공중에 있을때 추락 시작
+			if(enemy.get_enemy_Point().x >= enemy.get_Right_Bound_Site() ||
+					enemy.get_enemy_Point().x + 30 <= enemy.get_Left_Bound_Site()){ //우측으로 떨어지고 좌측으로 떨어지고
+				enemy.set_Down_Start_True();
+				//추적 알고리즘도 함께 움직야야한다.
+				enemy.init_Range_Site(stage.get_Walker().get(i).get_enemy_Point().x, stage.get_Walker().get(i).get_enemy_Point().y);
+				
+			}
+			
 			
 			if(enemy instanceof Walker){ //에너미중 워커의 객체가 있다면 그려라
 				//buffg.drawImage(walker_Png, enemy.get_enemy_Point().x, enemy.get_enemy_Point().y, this);
@@ -581,12 +596,15 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		//enemy_List.add(enemy);
 		
-	
+		
 		
 		//생성된 스테이지의 워커를 그려야함
 		for(int i=0; i<stage.get_Walker().size(); i++){
 			//추가된 워커들을 바로밑의 블록에 안착시킨다.
-			stage.get_Walker().get(i).set_Down_Start_True();
+			//stage.get_Walker().get(i).set_Down_Start_True();
+			//추적 알고리즘도 같이 떨궈야한다.
+			//stage.get_Walker().get(i).init_Range_Site(stage.get_Walker().get(i).get_enemy_Point().x, stage.get_Walker().get(i).get_enemy_Point().y);
+			
 			enemy_List.add(stage.get_Walker().get(i));
 			
 		}

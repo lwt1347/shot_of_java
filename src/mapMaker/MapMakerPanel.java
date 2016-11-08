@@ -133,7 +133,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			//블럭과 워커의 분기는 $로 표기한다.
 			for(int i=0; i<array_Walker.size(); i++){
 				walker = (Walker) array_Walker.get(i);
-				str += walker.get_Left_Bound_Site() + "@" + walker.get_Right_Bound_Site() + "^" + walker.get_Bottom_Bound_Site() + "&";
+				str += walker.get_Left_Bound_Site() + "@" + walker.get_Right_Bound_Site() + "@" + walker.get_Bottom_Bound_Site() + "&";
 			}
 			
 			
@@ -141,7 +141,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			
 			//파일 만들기
 			try{
-			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_2.txt"; //1스테이지로 만듬
+			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_1.txt"; //1스테이지로 만듬
 			
 			//파일 객체생성
 			File file = new File(fileName);

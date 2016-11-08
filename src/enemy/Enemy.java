@@ -110,7 +110,7 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 	
 	public void init_Bound_Site(int left_Bound_Site, int right_Bound_Site, int bottom_Bound_Site){ 
 		//몬스터가 튕겨 나가거나 주인공 캐릭을 쫓다가 다른 바닥으로 갔을때 한번더 초기화 해야한다.
-		this.left_Bound_Site = left_Bound_Site;
+		this.left_Bound_Site = left_Bound_Site; //-20 인 이유는 캐릭터를 바깥으로 튕겨내기 위해서
 		this.right_Bound_Site = right_Bound_Site;
 		this.bottom_Bound_Site = bottom_Bound_Site;
 	}
@@ -252,6 +252,7 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 				//적군 발판에서 밀려서 땅으로 떨어지는것
 				if(down_Start){
 					enemy_Down_Algorithm();
+					System.out.println("1");
 				}
 				
 				
@@ -315,7 +316,7 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 	}
 	public void set_Down_Start_False(){
 		//여기서 발판의 정보를 가져와서 뿌려야함
-		End_Y_Point = 1000; //초기화
+		End_Y_Point = 5000; //초기화
 		gSum = 0;
 		down_Start = false;
 	}

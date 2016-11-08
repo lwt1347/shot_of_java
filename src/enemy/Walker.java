@@ -152,6 +152,12 @@ public class Walker extends Enemy{
 					
 			}else { //적 영웅을 발견하게 되면 적 영웅을 추격한다.
 				
+				//끝까지 추격해야한다 방향 전환 
+				range_Site_Width_Left_Point = enemy_Point.x;
+				
+				
+				
+				
 				
 				range_Site_Height_Top_Point = enemy_Point.y-100;	//에서 
 				range_Site_Height_Bottom_Point = 150; //까지 600- 450  500 - 450 enemy_Point.y - 450
@@ -178,7 +184,7 @@ public class Walker extends Enemy{
 					}
 					
 					//좌우로 움직일 범위 설정 적군의 공격범위에서는 끝까지 따라오도록
-					if((left_Bound_Site) >= enemy_Point.x){
+					if((left_Bound_Site) >= enemy_Point.x + 30){
 						move_Site = false;
 					}else if((right_Bound_Site) <= enemy_Point.x){
 						move_Site = true;

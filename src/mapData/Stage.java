@@ -104,7 +104,7 @@ public class Stage {
 			temp_Left_Site = Integer.parseInt(walker_Element[0]);
 			temp_Right_Site = Integer.parseInt(walker_Element[1]);
 			temp_Bottom_Site = Integer.parseInt(walker_Element[2]);
-			temp_Walker = new Walker(temp_Left_Site - 20, temp_Right_Site, temp_Bottom_Site - 70);
+			temp_Walker = new Walker(temp_Left_Site - 35, temp_Right_Site, temp_Bottom_Site - 70);
 			walker_Array.add(temp_Walker);
 		}
 		System.out.println(Map.length);
