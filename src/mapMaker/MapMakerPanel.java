@@ -316,7 +316,50 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 		//워커 만들기
 		if(walker_Make){
 			walker = new Walker(start_Point.x, start_Point.x, start_Point.y);  //왜 움직이지?
-			array_Walker.add(walker);
+			//탈출시 포문도 함께 탈출
+			boolean forFlag = false;
+			
+			
+			
+				//안겹쳤을때 워커의 위치를 겹칠때까지 내린다.y 축으로
+				while(true){
+						
+						
+					for(int i=0; i<array_Block.size(); i++){
+					block = (Block) array_Block.get(i);
+							
+					
+					if(block.get_Left_Top_Point().x > walker.get_enemy_Point().x + walker.get_Enemy_Width() || 
+						block.get_Left_Top_Point().x + block.get_Widht() <= walker.get_enemy_Point().x ||
+						block.get_Left_Top_Point().y > walker.get_enemy_Point().y + walker.get_Enemy_Height() ||
+						block.get_Left_Top_Point().y + block.get_Height() <= walker.get_enemy_Point().y){
+						
+						//안겹쳤을때 워커의 위치를 겹칠때까지 내린다.y 축으로
+						walker.set_Enemy_Point_Y();
+						
+						}else{
+							walker.init_Bound_Site(block.get_Left_Top_Point().x + 30, block.get_Widht(), walker.get_enemy_Point().y + 70);
+							array_Walker.add(walker);
+							//겹칠때 탈출
+							forFlag = true;
+							break;
+						}
+					}
+					if(forFlag){
+						break;
+					}
+					
+				
+				
+				
+			
+			}
+			
+			
+			
+			
+			
+			
 			
 		}
 		

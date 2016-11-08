@@ -386,7 +386,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			//xpoint = 블럭의 x 좌표
 			if((block.get_Left_Top_Point().x + block.get_Widht()) <= (enemy.get_enemy_Point().x ) || 
 					block.get_Left_Top_Point().x >= (enemy.get_enemy_Point().x+enemy.get_Enemy_Width()) ||
-					(block.get_Left_Top_Point().y + block.get_Height()) <= enemy.get_enemy_Point().y ||
+					(block.get_Left_Top_Point().y + block.get_Height()) <= enemy.get_enemy_Point().y + enemy.get_Enemy_Height() - 10 ||
 					block.get_Left_Top_Point().y-1 >= (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
 			
 			
@@ -547,9 +547,11 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			//발판보다 거리가 넘어가거나/공중에 있을때 추락 시작
 			if(enemy.get_enemy_Point().x >= enemy.get_Right_Bound_Site() ||
 					enemy.get_enemy_Point().x + 30 <= enemy.get_Left_Bound_Site()){ //우측으로 떨어지고 좌측으로 떨어지고
+				
 				enemy.set_Down_Start_True();
 				//추적 알고리즘도 함께 움직야야한다.
 				enemy.init_Range_Site(stage.get_Walker().get(i).get_enemy_Point().x, stage.get_Walker().get(i).get_enemy_Point().y);
+				
 				
 			}
 			
@@ -566,7 +568,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			crash_Decide_Enemy(mainCh, enemy, enemy.get_Move_Site());
 			
 			
-			//땅하고 적군하고 출동판정 땅에 떨어지고있을때만 하면 되긴 한다.
+			//땅하고 적군하고 충돌판정 땅에 떨어지고있을때만 하면 되긴 한다.
 			for(int j=0; j< stage.get_Block().size(); j++ ){
 			crash_Decide_Enemy_Block(stage.get_Block().get(j), enemy);
 			}

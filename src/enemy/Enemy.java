@@ -240,6 +240,11 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 		return enemy_Point;
 	}
 	
+	//맵 메이커에서 적군의 y 축 자리를 잡기위해 사용
+	public void set_Enemy_Point_Y(){
+		enemy_Point.y++;
+	}
+	
 	
 	//적군 움직임 쓰레드
 	public void run() {

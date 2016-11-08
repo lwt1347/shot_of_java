@@ -17,7 +17,7 @@ public class Walker extends Enemy{
 		
 		//적 영웅 탐지 사각형 범위 지정
 		range_Site_Width_Right_Point = 250;
-		range_Site_Height_Bottom_Point = 50;
+		range_Site_Height_Bottom_Point = 60;
 		
 		//워커 둘레
 		width = 30;
@@ -57,7 +57,7 @@ public class Walker extends Enemy{
 			//몬스터가 히어로 쫒는 것을 종료했을때 탐색 범위를 원위치 시킨다.
 			public void init_Range_Site(){
 				range_Site_Width_Right_Point = 250;
-				range_Site_Height_Bottom_Point = 50;
+				range_Site_Height_Bottom_Point = 60;
 				
 				range_Site_Width_Left_Point = enemy_Point.x;
 				range_Site_Height_Top_Point = enemy_Point.y;
@@ -116,6 +116,7 @@ public class Walker extends Enemy{
 			}
 			//넉백위치에서 다시금 경계 사각형을 그린다.
 			range_Site_Width_Left_Point = enemy_Point.x;
+			range_Site_Height_Top_Point = enemy_Point.y;
 		}
 		
 		
@@ -160,7 +161,7 @@ public class Walker extends Enemy{
 				
 				
 				range_Site_Height_Top_Point = enemy_Point.y-100;	//에서 
-				range_Site_Height_Bottom_Point = 150; //까지 600- 450  500 - 450 enemy_Point.y - 450
+				range_Site_Height_Bottom_Point = 250; //까지 600- 450  500 - 450 enemy_Point.y - 450
 				//System.out.println(range_Site_Height_Bottom_Point);
 				//탐색 범위를 계속 해서 동기화 시켜 주어야한다.
 				//range_Site_Width_Left_Point = enemy_Point.x;
