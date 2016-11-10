@@ -69,7 +69,7 @@ public class Stage {
 			
 			//while ((line = reader.readLine()) != null ) {
 			line = reader.readLine();
-			System.out.println(line);
+			//System.out.println(line);
 			//}
 			reader.close();
 			
@@ -96,18 +96,19 @@ public class Stage {
 		
 		
 		//况目 积己
+		
 		Map = line.split("&");
 		String[] walker_Element = null;
 		for(int i=1; i<Map.length; i++){
 			walker_Element = Map[i].split("@");
-			System.out.println(walker_Element.length);
+			//System.out.println(walker_Element.length);
 			temp_Left_Site = Integer.parseInt(walker_Element[0]);
 			temp_Right_Site = Integer.parseInt(walker_Element[1]);
 			temp_Bottom_Site = Integer.parseInt(walker_Element[2]);
 			temp_Walker = new Walker(temp_Left_Site - 35, temp_Right_Site, temp_Bottom_Site - 70);
 			walker_Array.add(temp_Walker);
 		}
-		System.out.println(Map.length);
+		//System.out.println(Map.length);
 		//^359^359^443&724^724^644&222^222^829&793^793^323&826^826^108&
 				
 	}

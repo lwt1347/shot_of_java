@@ -97,13 +97,17 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 		th.start(); 		  //스레드 시작
 	}
 	
+	
 	//몬스터가 히어로 쫒는 것을 종료했을때 탐색 범위를 원위치 시킨다, 몬스터 발판 변경후 경계지역 초기화
 	public void init_Range_Site(int enemy_Point_X, int enemy_Point_Y){
 		//range_Site_Width_Right_Point = 300;
 		//range_Site_Height_Bottom_Point = 50;
 		
-		range_Site_Width_Left_Point = enemy_Point_X;
+		range_Site_Width_Left_Point = enemy_Point_X + width/2; //+width/2는 워커의 두께의 반 = 경계지역 확실시 하기 위해서
 		range_Site_Height_Top_Point = enemy_Point_Y - gSum;
+		
+		
+		//move_Site=!move_Site; //몬스터가 떨어지면서 방향이 바뀌는것을 한 번 더 바꾸어준다.
 	}
 	
 	
@@ -299,7 +303,7 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 		 }
 	}
 	
-	int End_Y_Point = 1000;
+	int End_Y_Point = 5000;
 	//적군이 새롭게 놓이 y 포인트 받아
 	public void get_Enemy_Exit_Yoint(int End_Y_Point){
 		this.End_Y_Point = End_Y_Point;

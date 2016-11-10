@@ -53,6 +53,14 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	Image bullet_Png;
 	Image walker_Png;
 	
+	
+	//죽음 이미지
+	Image death_Png;
+	
+	//영웅 시야 이미지
+	Image Hero_View_Png;
+	
+	
 	//더블 버퍼링용 이미지
 	Image buffImage;
 	Graphics buffg;
@@ -132,8 +140,19 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//적군 이미지
 		walker_Png = tk.getImage("img/walker_img.png");
 		
+		
+		//죽음이미지
+		death_Png = tk.getImage("img/redBackground_1.png");
+				
+	
+		//영웅 시야 이미지
+		Hero_View_Png = tk.getImage("img/Hero_View_1.png");
+				
 		//주인공 생성
 		mainCh = new Hero();
+		
+		
+		
 		
 		
 		//스테이지 true 가 되면 다음 스테이지로 넘어감
@@ -158,6 +177,19 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 	}
 	
+	//재시작하기 위함
+	public void restart(){
+		
+	
+		
+		mainCh = new Hero();
+		stage = new Stage();
+		stage.stage_Num(stage_Num); //현재 스테이지를 재성성한다.
+		enemy_List.clear(); //현재 생성된 적군을 다 제거하고 새롭게 생성한다.
+		enemy_Process(); 	//적군 생성 루틴
+		
+	}
+	
 	
 	public void paint(Graphics g){
 		//더블버퍼링 버퍼 크기를 화면 크기와 같게 설정
@@ -170,12 +202,16 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 	}
 	
+	
+	
+	
+	
 	public void update(Graphics g){
 		
 		//색깔 입히기	
-		//buffg.setColor(Color.gray);
-		//buffg.fillRect(0, 0, width, height);
-		//buffg.setColor(Color.black);
+		buffg.setColor(Color.gray);
+		buffg.fillRect(0, 0, width, height);
+		buffg.setColor(Color.black);
 		
 		//실제로 그려진 그림을 가져온다.
 		draw();
@@ -193,10 +229,39 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		vertical_View = mainCh.get_Hero_Y_Point();
 		
 		
+		//buffg.drawImage(death_Png, 0,vertical_View - 1000, this); //죽었을때 이벤트
+		
+		//영웅 이미지 그리기
+		draw_Hero();
+		
 		
 		//화면에 버퍼에 그린 그림을 가져와 그리기
 		g.drawImage(buffImage, 0, (height-1300)-vertical_View, this);
 	}
+	
+	public void draw_Hero(){
+		
+		//영웅이 보는 시각에 따라 암전 형태가 변경 좌우 변경
+				if(!mainCh.get_Face_Side_LFET_RIGHT()){ //오른쪽 방향 보고 있을때
+					
+					
+					//System.out.println(mainCh.get_View_Temp_Int_Plus()); //1 - 2 - 3 - 4 
+					
+					
+					Hero_View_Png = tk.getImage("img/Hero_View_Right/Hero_View_Right_" + mainCh.get_View_Temp_Int_Plus() + ".png");
+					buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1100,  mainCh.get_Hero_Y_Point() - 1050, this); //영웅 암전
+					
+				}else{//왼쪽 방향 보고 있을때
+					
+					//System.out.println(mainCh.get_View_Temp_Int_Minus()); //4 - 3 - 2 - 1
+					
+					Hero_View_Png = tk.getImage("img/Hero_View_Left/Hero_View_Left_" + mainCh.get_View_Temp_Int_Minus() + ".png");
+					buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1450,  mainCh.get_Hero_Y_Point() - 1050, this); //영웅 암전	
+				
+				}
+				
+	}
+	
 	
 	//실제로 그림들을 그릴 부분
 	public void draw(){
@@ -234,7 +299,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		for(int i=0; i<stage.get_Block().size(); i++){
 			 //fillRect
-			buffg.drawRect(stage.get_Block().get(i).get_Left_Top_Point().x,
+			buffg.fillRect(stage.get_Block().get(i).get_Left_Top_Point().x,
 					stage.get_Block().get(i).get_Left_Top_Point().y,
 					stage.get_Block().get(i).get_Widht(), 
 					stage.get_Block().get(i).get_Height());
@@ -284,6 +349,14 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 			}
 			
+			//땅하고 적군하고 충돌판정 땅에 떨어지고있을때만 하면 되긴 한다.
+			for(int j=0; j< stage.get_Block().size(); j++ ){			
+			//crash_Decide_Enemy_Block(stage.get_Block().get(j), enemy);
+			
+			//땅하고 총알 하고 충돌판정
+			crash_Decide_Weapon_Block(weapon, stage.get_Block().get(j));
+			
+			}
 			
 			
 			
@@ -411,17 +484,24 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 			
 			
-			//닿아 있을때 발판의 위치를 리턴한다, 적군을 블록위에 안착시킨다.
+			//닿아 있을때 발판의 위치를 리턴한다, 
 			enemy.get_Enemy_Exit_Yoint(block.get_Left_Top_Point().y  - enemy.get_Enemy_Height() );
-			enemy.init_Bound_Site(block.get_Left_Top_Point().x, (block.get_Widht() + block.get_Left_Top_Point().x), block.get_Left_Top_Point().y - block.get_Height());
-			
 			//추적 알고리즘도 같이 떨궈야한다.
 			enemy.init_Range_Site(enemy.get_enemy_Point().x, enemy.get_enemy_Point().y);
+			//적군을 블록위에 안착시킨다.
+			enemy.init_Bound_Site(block.get_Left_Top_Point().x, (block.get_Widht() + block.get_Left_Top_Point().x), block.get_Left_Top_Point().y - block.get_Height());
+			
 			
 		}
 		
 		}
 	}
+	
+	
+	//충돌체크 
+	
+	
+	
 	
 	//충돌 체크 함수 캐릭터와 총알 등 
 	public void crash_Decide_Enemy(Hero hero, Enemy enemy, boolean get_Site){ //get_Site = 탐지구역이 좌측인지 우측인지
@@ -492,7 +572,20 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	
 	
-	
+	//총알과 벽의 충돌검사
+	public void crash_Decide_Weapon_Block(Weapon Weapon, Block block){
+		if((weapon.getPoint().x+weapon.get_Weapon_Width()) < (block.get_Left_Top_Point().x ) || 
+				weapon.getPoint().x > (block.get_Left_Top_Point().x+block.get_Widht()) ||
+				(weapon.getPoint().y+weapon.get_Weapon_Height()) < block.get_Left_Top_Point().y ||
+				weapon.getPoint().y > (block.get_Left_Top_Point().y+block.get_Height())){
+			
+			
+		}else{ //충돌
+			//System.out.println("총 벽 충돌");
+			bullet_List.remove(weapon);
+		}
+			
+	}
 	
 	
 	
@@ -553,6 +646,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	//적군을 그리는 함수
 	public void draw_Enemy(){
+		
+		
+		
 		//적군의 수를 반복하여 그린다
 		for(int i=0; i<enemy_List.size(); i++){
 			
@@ -577,6 +673,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			}
 			
 			
+			
 			if(enemy instanceof Walker){ //에너미중 워커의 객체가 있다면 그려라
 				//buffg.drawImage(walker_Png, enemy.get_enemy_Point().x, enemy.get_enemy_Point().y, this);
 				buffg.drawRect(enemy.get_enemy_Point().x,  enemy.get_enemy_Point().y, ((Walker) enemy).get_Enemy_Width(),  ((Walker) enemy).get_Enemy_Height()); //사각형으로 일단 대체
@@ -592,6 +689,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			//땅하고 적군하고 충돌판정 땅에 떨어지고있을때만 하면 되긴 한다.
 			for(int j=0; j< stage.get_Block().size(); j++ ){
 			crash_Decide_Enemy_Block(stage.get_Block().get(j), enemy);
+			
+			
+			
 			}
 			
 			//탐지 구역 그리기
@@ -632,6 +732,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			for(int j=0; j<stage.get_Block().size(); j++){
 				stage.get_Walker().get(i).set_Down_Start_True(); //초기 생성시 맞닿은 벽위에 안착 시키기 위해서
 				crash_Decide_Enemy_Block(stage.get_Block().get(j), stage.get_Walker().get(i));
+				
 			}
 			
 			enemy_List.add(stage.get_Walker().get(i));
@@ -871,6 +972,13 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		case KeyEvent.VK_3 : //총 바꾸기 다연발 총
 			weapon_Number = 3;//무기 변경
 			break;
+			
+			
+		case KeyEvent.VK_R : // R 은 그 판 재시작
+			
+			restart();
+			break;
+			
 		}
 		
 		

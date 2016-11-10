@@ -46,6 +46,14 @@ public class Hero extends JPanel{
 	int jump_Time_Schedule;
 	
 	
+	//영웅 시점 변경 명령 boolean
+	private boolean view_Temp = false;
+	//영웅 시점 단계변화 9단계 까지
+	private int view_Temp_Int=0;
+	
+	
+	
+	
 	//히어로 기본 생성자
 	public Hero() {
 		x_Point = 100;
@@ -143,6 +151,25 @@ public class Hero extends JPanel{
 		}
 	}
 	
+	
+	//영웅 시점 반환
+	public int get_View_Temp_Int_Plus(){
+		if(view_Temp_Int < 9 ){ //1부터 ~ 4까지
+			view_Temp_Int++; 
+		}
+		return view_Temp_Int;
+	}
+	//영웅 시점 반환
+	public int get_View_Temp_Int_Minus(){
+		if(view_Temp_Int > 1 ){ //4부터 ~ 1까지
+			view_Temp_Int--;
+		}
+		return view_Temp_Int;
+	}
+	
+	
+	
+		
 	
 	
 	

@@ -115,8 +115,8 @@ public class Walker extends Enemy{
 				enemy_Point.x -= 15;
 			}
 			//넉백위치에서 다시금 경계 사각형을 그린다.
-			range_Site_Width_Left_Point = enemy_Point.x;
-			range_Site_Height_Top_Point = enemy_Point.y;
+			//range_Site_Width_Left_Point = enemy_Point.x;
+			//range_Site_Height_Top_Point = enemy_Point.y;
 		}
 		
 		
@@ -147,14 +147,14 @@ public class Walker extends Enemy{
 					
 					//탐색 범위를 계속 해서 동기화 시켜 주어야한다.
 					
-					range_Site_Width_Left_Point = enemy_Point.x;
+					range_Site_Width_Left_Point = enemy_Point.x + width/2; //+width/2는 워커의 두께의 반 = 경계지역 확실시 하기 위해서
 					//range_Site_Height_Top_Point = enemy_Point.y;
 				
 					
 			}else { //적 영웅을 발견하게 되면 적 영웅을 추격한다.
 				
 				//끝까지 추격해야한다 방향 전환 
-				range_Site_Width_Left_Point = enemy_Point.x;
+				range_Site_Width_Left_Point = enemy_Point.x + width/2;  //+width/2는 워커의 두께의 반 = 경계지역 확실시 하기 위해서
 				
 				
 				
