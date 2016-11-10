@@ -52,6 +52,8 @@ public class Hero extends JPanel{
 	private int view_Temp_Int=0;
 	
 	
+
+	
 	
 	
 	//히어로 기본 생성자
@@ -116,6 +118,67 @@ public class Hero extends JPanel{
 		}
 	}
 	
+	
+	
+	//총 발사 이미지 변경 위한 변수 hero 에 있는 이유는 총 발사 이벤트는 캐릭터가 하는 것이기때문에
+	private int trigger_State = 1;
+	
+	public int get_Trigger_State(){
+		return trigger_State;
+	}
+	public void set_Trigger_State(){
+		trigger_State++;
+		if(trigger_State == 8){
+			trigger_State = 1;
+		}
+	}
+	
+	
+	//오른쪽으로 걸을때 3~4 
+	private int right_Walk=0;
+	private int right_Walk_Delay = 0;
+	//오른쪽으로 증가
+	public int set_Right_Walk_Plus(){
+		if(right_Walk_Delay%2==0){
+		right_Walk++;
+		right_Walk_Delay = 0;
+		}
+		right_Walk_Delay++;
+		if(right_Walk == 13){
+			right_Walk = 1;
+		}
+		return right_Walk;
+	}
+	
+	//오른쪽으로 움직이는중인지 체크한다
+	public boolean get_X_Flag_Right(){
+		return x_Flag_Right;
+	}
+	
+	//왼쪽으로 걸을때 3~4 
+		private int left_Walk=0;
+		private int left_Walk_Delay = 0;
+		//왼쪽으로 증가
+		public int set_Left_Walk_Plus(){
+			if(left_Walk_Delay%2==0){
+				left_Walk++;
+				left_Walk_Delay = 0;
+			}
+			left_Walk_Delay++;
+			if(left_Walk == 13){
+				left_Walk = 1;
+			}
+			return left_Walk;
+		}
+		
+		//왼쪽으로 움직이는중인지 체크한다
+		public boolean get_X_Flag_Left(){
+			return x_Flag_Left;
+		}
+	
+	
+	
+	
 	//캐릭터 점프 무빙
 	public void jump_Move(){ //캐릭터의 Y축 값을 가져와서 Y축과 동일 해지거나 작아질때까지 감소시키고 Y축 값을 리턴 또는 중간에 블럭을 밟으면 블럭의 값을 가져와 일치시킨다.
 		
@@ -154,7 +217,7 @@ public class Hero extends JPanel{
 	
 	//영웅 시점 반환
 	public int get_View_Temp_Int_Plus(){
-		if(view_Temp_Int < 9 ){ //1부터 ~ 4까지
+		if(view_Temp_Int < 5 ){ //1부터 ~ 4까지
 			view_Temp_Int++; 
 		}
 		return view_Temp_Int;

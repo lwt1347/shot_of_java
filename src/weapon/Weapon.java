@@ -26,6 +26,7 @@ public class Weapon implements Runnable{
 	//스레드 생성
 	Thread th;
 	
+
 	
 	
 	//생성시 초기화, 총알 좌표 초기화	
