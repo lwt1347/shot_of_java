@@ -137,6 +137,7 @@ public class Hero extends JPanel{
 	//오른쪽으로 걸을때 3~4 
 	private int right_Walk=0;
 	private int right_Walk_Delay = 0;
+	private int walk_Image_Temp = 13; //일어나있을때 걷는 모습은 13장 앉았을때는 6장
 	//오른쪽으로 증가
 	public int set_Right_Walk_Plus(){
 		if(right_Walk_Delay%2==0){
@@ -144,9 +145,11 @@ public class Hero extends JPanel{
 		right_Walk_Delay = 0;
 		}
 		right_Walk_Delay++;
-		if(right_Walk == 13){
+		
+		if(right_Walk >= walk_Image_Temp){ //일어 나있을때 앉아있을때 사진의 개수가 다르다.
 			right_Walk = 1;
 		}
+		
 		return right_Walk;
 	}
 	
@@ -165,7 +168,7 @@ public class Hero extends JPanel{
 				left_Walk_Delay = 0;
 			}
 			left_Walk_Delay++;
-			if(left_Walk == 13){
+			if(left_Walk >= walk_Image_Temp){
 				left_Walk = 1;
 			}
 			return left_Walk;
@@ -323,6 +326,11 @@ public class Hero extends JPanel{
 		return jump_Hero_UP_DOWN; //true = 올라가는중
 	}
 	
+	//점프중일때
+	public boolean get_Jump_Hero(){ //점프중일때 true
+		return jump_Hero;
+	}
+	
 	
 	//주인공 x 축 리턴
 	public int get_Hero_X_Point(){
@@ -352,6 +360,7 @@ public class Hero extends JPanel{
 		y_Point += 20;
 		set_Hero_Sit_Stand = false;
 		hero_Speed = 2; //영웅 이속 변경
+		walk_Image_Temp = 6; //앉아있을때 사진 6장
 		}
 	}
 	public void set_Hero_Stand(){ //주인공 서기
@@ -359,6 +368,12 @@ public class Hero extends JPanel{
 		y_Point -= 20;
 		hero_Height = 45;
 		hero_Speed = 5; //영웅 이속 변경
+		walk_Image_Temp = 13;
+	}
+	
+	//주인공 앉아있을때 상태 반환
+	public boolean get_Sit_State(){
+		return set_Hero_Sit_Stand;
 	}
 	
 	

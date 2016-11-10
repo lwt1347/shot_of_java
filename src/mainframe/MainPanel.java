@@ -140,10 +140,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		
-		bullet_Png = tk.getImage("img/Bullet_img.png");
 		
-		//적군 이미지
-		walker_Png = tk.getImage("img/walker_img.png");
+		
+		
 		
 		
 		//죽음이미지
@@ -222,12 +221,15 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//실제로 그려진 그림을 가져온다.
 		//draw();
 		
+		
+		//총알을 그린다.
+		draw_Bullet();
+		
 		//영웅 이미지 그리기
 		draw_Hero();
 		
 		
-		//총알을 그린다.
-		draw_Bullet();
+		
 		
 		//적군을 그린다.
 		draw_Enemy();
@@ -260,20 +262,26 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				if(!mainCh.get_Face_Side_LFET_RIGHT()){ //오른쪽 방향 보고 있을때
 					//주인공의 기본 이미지 삽입
 					hero_Png = tk.getImage("img/Hero_Move_Right/hero_Right_1.png");
-					
+					if(!mainCh.get_Sit_State()){ //앉아 있을떄 기본이미지 변경
+						hero_Png = tk.getImage("img/Hero_Move_Right_Down/hero_Move_Right_1.png");
+					}
 					//System.out.println(mainCh.get_View_Temp_Int_Plus()); //1 - 2 - 3 - 4 
 					
 					
 					Hero_View_Png = tk.getImage("img/Hero_View_Right/Hero_View_Right_" + mainCh.get_View_Temp_Int_Plus() + ".png");
-					buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1050,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전
+					//buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1050,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전
 					
 				}else{//왼쪽 방향 보고 있을때
 					//주인공의 기본 이미지 삽입
 					hero_Png = tk.getImage("img/Hero_Move_Left/hero_Left_1.png");
+					
+					if(!mainCh.get_Sit_State()){ //앉아 있을떄 기본이미지 변경
+						hero_Png = tk.getImage("img/Hero_Move_Left_Down/hero_Move_Left_1.png");
+					}
 					//System.out.println(mainCh.get_View_Temp_Int_Minus()); //4 - 3 - 2 - 1
 					
 					Hero_View_Png = tk.getImage("img/Hero_View_Left/Hero_View_Left_" + mainCh.get_View_Temp_Int_Minus() + ".png");
-					buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1500,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전	
+					//buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1500,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전	
 					
 				}
 				
@@ -281,11 +289,33 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				//오른쪽으로 걸어갈때마다
 				if(mainCh.get_X_Flag_Right()){
 				//System.out.println(mainCh.set_Right_Walk_Plus());
+					
+					if(mainCh.get_Jump_Hero()){
+						//오른쪽으로 점프중일때
+						hero_Png = tk.getImage("img/hero_Jump_Right.png"); //
+					}else if(!mainCh.get_Sit_State()){//오른쪽으로 앉아서 갈때
+						hero_Png = tk.getImage("img/Hero_Move_Right_Down/hero_Move_Right_"+mainCh.set_Right_Walk_Plus()+".png"); //오른쪽으로 앉아서 갈때 걸어다니는 이미지
+					}else{
 					hero_Png = tk.getImage("img/Hero_Move_Right/hero_Right_"+mainCh.set_Right_Walk_Plus()+".png"); //오른쪽으로 걸어다니는 이미지
+					}
+					
+					
 				}else if(mainCh.get_X_Flag_Left()){
+					if(mainCh.get_Jump_Hero()){
+						//오른쪽으로 점프중일때
+						hero_Png = tk.getImage("img/hero_Jump_Left.png"); //
+					}else if(!mainCh.get_Sit_State()){ //왼쪽으로 앉아서 갈때
+						hero_Png = tk.getImage("img/Hero_Move_Left_Down/hero_Move_Left_"+mainCh.set_Right_Walk_Plus()+".png");
+					}
+					else{
 					hero_Png = tk.getImage("img/Hero_Move_Left/hero_Left_"+mainCh.set_Right_Walk_Plus()+".png"); //왼쪽으로 걸어다니는 이미지
+					}
 				}
 				//왼쪽으로 걸어갈때
+				
+				
+				//프레임에 저장된 .png 이미지를 그려넣습니다. 영웅 그려넣기
+				buffg.drawImage(hero_Png, mainCh.get_Hero_X_Point()-7, mainCh.get_Hero_Y_Point()-17, this);
 				
 				
 				
@@ -304,9 +334,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}
 					
 					//총 이미지 버퍼에 그려넣기
-					buffg.drawImage(weapon_Png, mainCh.get_Hero_X_Point()-15, mainCh.get_Hero_Y_Point()-17, this); 
+					buffg.drawImage(weapon_Png, mainCh.get_Hero_X_Point()-7, mainCh.get_Hero_Y_Point()-17, this); 
 					
 				}
+				
 				//1번 기본총이면서 왼쪽을 볼때
 				if(weapon_Number == 1 && mainCh.get_Face_Side_LFET_RIGHT()){
 					
@@ -322,8 +353,85 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}
 					
 					//총 이미지 버퍼에 그려넣기
-					buffg.drawImage(weapon_Png, mainCh.get_Hero_X_Point()-50, mainCh.get_Hero_Y_Point()-17, this); 
+					buffg.drawImage(weapon_Png, mainCh.get_Hero_X_Point()-41, mainCh.get_Hero_Y_Point()-17, this); 
+				}
+				
+				
+				
+				//2번 쌍권총이면서 오른쪽을 볼때
+				if(weapon_Number == 2 && !mainCh.get_Face_Side_LFET_RIGHT()){
 					
+					//총이 발사되면 피스톨 1~7까지 반복
+					weapon_Png = tk.getImage("img/weapone_Right_2/pistol_Right_1.png");
+					
+					if(attack_Img_Temp){//공격 버튼 눌림 7까지 반복하면 false 로 변경 해야함
+						mainCh.set_Trigger_State(); //트리거를 1씩 증가며 8이 되었을때 다시 1로 만든다 
+						weapon_Png = tk.getImage("img/weapone_Right_2/pistol_Right_" + mainCh.get_Trigger_State() + ".png");
+						if(mainCh.get_Trigger_State() == 1){ //트리거가 1이 되었을때 공격이 종료된것
+							attack_Img_Temp = false;
+						}
+					}
+					
+					//총 이미지 버퍼에 그려넣기
+					buffg.drawImage(weapon_Png, mainCh.get_Hero_X_Point()-7, mainCh.get_Hero_Y_Point()-17, this); 
+					
+				}
+				
+				//2번 기본총이면서 왼쪽을 볼때
+				if(weapon_Number == 2 && mainCh.get_Face_Side_LFET_RIGHT()){
+					
+					//총이 발사되면 피스톨 1~7까지 반복
+					weapon_Png = tk.getImage("img/weapone_Left_2/pistol_Left_1.png");
+					
+					if(attack_Img_Temp){//공격 버튼 눌림 7까지 반복하면 false 로 변경 해야함
+						mainCh.set_Trigger_State(); //트리거를 1씩 증가며 8이 되었을때 다시 1로 만든다 
+						weapon_Png = tk.getImage("img/weapone_Left_2/pistol_Left_" + mainCh.get_Trigger_State() + ".png");
+						if(mainCh.get_Trigger_State() == 1){ //트리거가 1이 되었을때 공격이 종료된것
+							attack_Img_Temp = false;
+						}
+					}
+					
+					//총 이미지 버퍼에 그려넣기
+					buffg.drawImage(weapon_Png, mainCh.get_Hero_X_Point()-41, mainCh.get_Hero_Y_Point()-17, this); 
+				}
+				
+				
+				//3번 기관총이면서 오른쪽을 볼때
+				if(weapon_Number == 3 && !mainCh.get_Face_Side_LFET_RIGHT()){
+					
+					//총이 발사되면 피스톨 1~7까지 반복
+					weapon_Png = tk.getImage("img/weapone_Right_3/pistol_Right_1.png");
+					
+					if(attack_Img_Temp){//공격 버튼 눌림 7까지 반복하면 false 로 변경 해야함
+						mainCh.set_Trigger_State(); //트리거를 1씩 증가며 8이 되었을때 다시 1로 만든다 
+						weapon_Png = tk.getImage("img/weapone_Right_3/pistol_Right_" + mainCh.get_Trigger_State() + ".png");
+						if(mainCh.get_Trigger_State() == 1){ //트리거가 1이 되었을때 공격이 종료된것
+							attack_Img_Temp = false;
+						}
+					}
+					
+					//총 이미지 버퍼에 그려넣기
+					buffg.drawImage(weapon_Png, mainCh.get_Hero_X_Point()-7, mainCh.get_Hero_Y_Point()-23, this); 
+					
+				}
+				
+				
+				//13 기관총이면서 왼쪽을 볼때
+				if(weapon_Number == 3 && mainCh.get_Face_Side_LFET_RIGHT()){
+					
+					//총이 발사되면 피스톨 1~7까지 반복
+					weapon_Png = tk.getImage("img/weapone_Left_3/pistol_Left_1.png");
+					
+					if(attack_Img_Temp){//공격 버튼 눌림 7까지 반복하면 false 로 변경 해야함
+						mainCh.set_Trigger_State(); //트리거를 1씩 증가며 8이 되었을때 다시 1로 만든다 
+						weapon_Png = tk.getImage("img/weapone_Left_3/pistol_Left_" + mainCh.get_Trigger_State() + ".png");
+						if(mainCh.get_Trigger_State() == 1){ //트리거가 1이 되었을때 공격이 종료된것
+							attack_Img_Temp = false;
+						}
+					}
+					
+					//총 이미지 버퍼에 그려넣기
+					buffg.drawImage(weapon_Png, mainCh.get_Hero_X_Point()-41, mainCh.get_Hero_Y_Point()-23, this); 
 				}
 				
 				
@@ -335,8 +443,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				
 				
-				//프레임에 저장된 .png 이미지를 그려넣습니다. 영웅 그려넣기
-				buffg.drawImage(hero_Png, mainCh.get_Hero_X_Point()-15, mainCh.get_Hero_Y_Point()-17, this);
+				
+				
+				
+				
 				
 				
 	}
@@ -357,7 +467,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		//프레임에 저장된 .png 이미지를 그려넣습니다.
 		//buffg.drawImage(hero_Png, mainCh.get_Hero_X_Point()-15, mainCh.get_Hero_Y_Point()-17, this);
-		//buffg.drawRect(mainCh.get_Hero_X_Point(),   mainCh.get_Hero_Y_Point(), mainCh.get_Hero_Width(),  mainCh.get_Hero_Height()); //캐릭터 사각형으로 일단 대체
+		buffg.drawRect(mainCh.get_Hero_X_Point(),   mainCh.get_Hero_Y_Point(), mainCh.get_Hero_Width(),  mainCh.get_Hero_Height()); //캐릭터 사각형으로 일단 대체
 	}
 	
 	//스테이지 맵 을 그림 (블록)
@@ -412,15 +522,32 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 	}
 	
+	//오른쪽으로 쏠때 약간더 오른쪽에서 공격해야함
+	int bullet_Plus_Temp = 35;
 	
 	//총알을 그리는 함수
 	public void draw_Bullet(){
+		
+		
+		
+		
 		//총알 개수 만큼 반복하며 그린다.
 		for(int i=0; i<bullet_List.size(); i++){
 			weapon = (Weapon) bullet_List.get(i);
+			
+			//오른쪽으로 날아갈때
+			if(!weapon.get_Bullet_Side_LEFT_RIGHT()){
+				bullet_Png = tk.getImage("img/right_Bullet.png");
+				bullet_Plus_Temp = 35;
+			}else {
+				bullet_Png = tk.getImage("img/Left_Bullet.png");
+				bullet_Plus_Temp = 0;
+			}
+			
 			if(weapon instanceof Pistol){ //불릿 리스트에 정보가 피스톨로 변형 가능하다면.
-				//buffg.drawImage(bullet_Png, weapon.getPoint().x,  weapon.getPoint().y, this);
-				buffg.drawRect(weapon.getPoint().x,  weapon.getPoint().y, weapon.get_Weapon_Width(),  weapon.get_Weapon_Height()); //사각형으로 일단 대체
+				
+				buffg.drawImage(bullet_Png, weapon.getPoint().x + bullet_Plus_Temp,  weapon.getPoint().y, this);
+				//buffg.drawRect(weapon.getPoint().x,  weapon.getPoint().y, weapon.get_Weapon_Width(),  weapon.get_Weapon_Height()); //사각형으로 일단 대체
 				
 				//피스톨 총알 제각기 의 방향성을 가지고 날아간다.
 				//((Pistol) weapon).pistol_Move( weapon.get_Bullet_Side_LEFT_RIGHT() ); // -> 쓰레드로 변경
@@ -763,8 +890,35 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 			
 			if(enemy instanceof Walker){ //에너미중 워커의 객체가 있다면 그려라
-				//buffg.drawImage(walker_Png, enemy.get_enemy_Point().x, enemy.get_enemy_Point().y, this);
+				
+				
+				//walker_Png = tk.getImage("img/walker_Right_Nomal_1/walker_Right_Nomal_1.png");
+				
+				
+				//적군 이미지 적군이 오른쪽으로 이동중일때
+				if(!((Walker) enemy).get_Right_Flag()){
+					
+					if(((Walker) enemy).get_Find_Hero()){
+						walker_Png = tk.getImage("img/walker_Right_Attack/walker_Right_Attack_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png"); //공격 범위내에 영웅이 있을때
+					}else {
+						walker_Png = tk.getImage("img/walker_Right_Nomal/walker_Right_Nomal_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png");
+					}
+					
+					
+				}else{//적군이 왼쪽으로 이동할때
+					if(((Walker) enemy).get_Find_Hero()){
+						walker_Png = tk.getImage("img/walker_Left_Attack/walker_Left_Attack_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png");
+					}else{
+					walker_Png = tk.getImage("img/walker_Left_Nomal/walker_Left_Nomal_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png");
+					}
+				}
+				
+				
+				buffg.drawImage(walker_Png, enemy.get_enemy_Point().x - 5, enemy.get_enemy_Point().y+8, this); //+8을 하는 이유는 안하면 공중부양함
+				
 				buffg.drawRect(enemy.get_enemy_Point().x,  enemy.get_enemy_Point().y, ((Walker) enemy).get_Enemy_Width(),  ((Walker) enemy).get_Enemy_Height()); //사각형으로 일단 대체
+				
+				
 			}
 			
 			//적군을 움직이는 함수 호출 -> 멀티쓰레드로 변경 생성과 동시에 적군 클레스 쓰레드 자동생성

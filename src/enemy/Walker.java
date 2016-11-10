@@ -100,10 +100,17 @@ public class Walker extends Enemy{
 				move_Site = true;
 			}
 		}
+		
 		//영웅을 놓쳤을때
 		public void set_Not_Find_Hero(){
 			find_Hero = false;
 		}
+		
+		//적군의 공격 상태확인
+		public boolean get_Find_Hero(){
+			return find_Hero;
+		}
+		
 		
 		
 		//피격 판정시 뒤로 밀려남 효과
@@ -118,6 +125,33 @@ public class Walker extends Enemy{
 			//range_Site_Width_Left_Point = enemy_Point.x;
 			//range_Site_Height_Top_Point = enemy_Point.y;
 		}
+		
+		
+		
+		//오른쪽으로 걸을때 3~4 
+		private int right_Walk=0;
+		private int right_Walk_Delay = 0;
+		private int walk_Image_Temp = 9; //일어나있을때 걷는 모습은 9장 앉았을때는 6장
+		//오른쪽으로 증가
+		public int set_Right_Walk_Plus(){
+			if(right_Walk_Delay%2==0){
+			right_Walk++;
+			right_Walk_Delay = 0;
+			}
+			right_Walk_Delay++;
+			
+			if(right_Walk >= walk_Image_Temp){ //일어 나있을때 앉아있을때 사진의 개수가 다르다.
+				right_Walk = 1;
+			}
+			
+			return right_Walk;
+		}
+		
+		//오른쪽으로 움직이는중인지 체크한다
+		public boolean get_Right_Flag(){ //false 일때 오른쪽
+			return move_Site;
+		}
+		
 		
 		
 		
