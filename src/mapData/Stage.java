@@ -42,6 +42,9 @@ public class Stage {
 	
 	walker_Array = new ArrayList<Walker>(); //워커 초기화
 	
+	
+	
+	
 	}
 	
 	//1스테이지
@@ -100,6 +103,7 @@ public class Stage {
 		Map = line.split("&");
 		String[] walker_Element = null;
 		for(int i=1; i<Map.length; i++){
+		//for(int i=1; i<3; i++){	
 			walker_Element = Map[i].split("@");
 			//System.out.println(walker_Element.length);
 			temp_Left_Site = Integer.parseInt(walker_Element[0]);

@@ -62,10 +62,21 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	//영웅 시야 이미지
 	Image Hero_View_Png;
 	
+	//땅 이미지
+	Image ground_Png;
+	
+	//뒷 배경
+	Image background_Img;
+	
+	//총알이 적군을 적중하면 피튀기는 효과
+	Image Enemy_Blood;
+	
 	
 	//더블 버퍼링용 이미지
 	Image buffImage;
 	Graphics buffg;
+	
+	
 	
 	
 	//스레드 생성
@@ -141,6 +152,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		
+		//백그라운드 이미지
+		background_Img = tk.getImage("img/background.png");
+		
 		
 		
 		
@@ -185,7 +199,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	//재시작하기 위함
 	public void restart(){
 		
-	
+		//이미지 버퍼링용
+		Image_Init_Flag = true;
 		
 		mainCh = new Hero();
 		stage = new Stage();
@@ -196,14 +211,26 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	}
 	
 	
+	
+	//이미지 버퍼링용
+	private boolean Image_Init_Flag = true;
 	public void paint(Graphics g){
 		//더블버퍼링 버퍼 크기를 화면 크기와 같게 설정
 		buffImage = createImage(width,height);
 		//버퍼의 그래픽 객체 얻기
 		buffg = buffImage.getGraphics();
 		
+		//배그라운드 이미지
+		//buffg.drawImage(background_Img, 0, -500, this);
+		
+		if(Image_Init_Flag){
+		Image_Init(); //이미지 버퍼링
+		Image_Init_Flag = false;
+		}
+		
 		update(g);
 		
+
 		
 	}
 	
@@ -222,20 +249,20 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//draw();
 		
 		
+				
+		//스테이지를 그린다.
+		draw_Stage();
+		
 		//총알을 그린다.
 		draw_Bullet();
+		
+		//적군을 그린다.
+		draw_Enemy();
 		
 		//영웅 이미지 그리기
 		draw_Hero();
 		
 		
-		
-		
-		//적군을 그린다.
-		draw_Enemy();
-		
-		//스테이지를 그린다.
-		draw_Stage();
 		
 		//캐릭터의 횡축을 가져온다
 		vertical_View = mainCh.get_Hero_Y_Point();
@@ -470,14 +497,18 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		buffg.drawRect(mainCh.get_Hero_X_Point(),   mainCh.get_Hero_Y_Point(), mainCh.get_Hero_Width(),  mainCh.get_Hero_Height()); //캐릭터 사각형으로 일단 대체
 	}
 	
+	//땅이미지 변경해줌
+	int ground_Img_Temp = 1;
+	
 	//스테이지 맵 을 그림 (블록)
 	public void draw_Stage(){
 		
 		//다음 스테이지로 넘어감
 		if(end_Stage){
 			stage_Num++; //다음 스테이지로 넘어감 //현 위치 초기화 1스테이지
-			
+			//System.out.println();
 			//스테이지넘버를 한번 반영해서 스테이지를 만든다.
+			stage_Num = 1;
 			stage.map_Stage(stage_Num);
 
 			//기본 적군 워커 생성
@@ -492,15 +523,40 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		
+		//땅 이미지넣기
+		
+		//땅 이미지 넣기 나누기 x축
+		int ground_Temp_X;
 		
 		
 		
 		for(int i=0; i<stage.get_Block().size(); i++){
 			 //fillRect
-			buffg.fillRect(stage.get_Block().get(i).get_Left_Top_Point().x,
-					stage.get_Block().get(i).get_Left_Top_Point().y,
-					stage.get_Block().get(i).get_Widht(), 
-					stage.get_Block().get(i).get_Height());
+			//buffg.fillRect(stage.get_Block().get(i).get_Left_Top_Point().x,
+			//		stage.get_Block().get(i).get_Left_Top_Point().y,
+			//		stage.get_Block().get(i).get_Widht(), 
+			//		stage.get_Block().get(i).get_Height());
+			
+			//땅이미지 변경해줌
+			ground_Img_Temp = 1;
+			
+			//생성된 맵의 x측 길이를 통해 그라운드 이미지가 몇개 들어갈것인지 그린다.
+			ground_Temp_X = stage.get_Block().get(i).get_Left_Top_Point().x;
+			while(true){
+				ground_Png = tk.getImage("img/ground_Img/ground_Img_" + ground_Img_Temp + ".png");
+				buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-10, this);
+				ground_Temp_X+=10; //10범위마다 하나씩 그림
+				if(ground_Temp_X >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
+					ground_Png = tk.getImage("img/ground_Img/ground_Img_30.png"); //벽 매무새
+					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-10, this);
+					break;
+				}
+				
+				ground_Img_Temp++;
+				if(ground_Img_Temp == 31){//그림보다 사진량이 많아지면 안된다.
+					ground_Img_Temp = 1;
+				}
+			}
 			
 		
 			//충돌 함수 호출 1이면 벽과 캐릭터
@@ -658,13 +714,13 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					
 				}//캐릭터 우측과 벽의 좌측이 박았을때
 				else if(hero.get_Hero_X_Point() + hero.get_Hero_Width() <= block.get_Left_Top_Point().x + 25){
-					System.out.println("벽의 왼쪽 면 부딛힘");
+					//System.out.println("벽의 왼쪽 면 부딛힘");
 					//오른쪽으로 전진 못하도록 막아야함
 					mainCh.stop_Move_Right(hero.get_Hero_X_Point());
 				}
 				//캐릭터 좌측과 벽의 우측이 박았을때
 				else if(hero.get_Hero_X_Point() >= block.get_Left_Top_Point().x + block.get_Widht() - 25){
-					System.out.println("벽의 오른쪽 면 부딛힘");
+					//System.out.println("벽의 오른쪽 면 부딛힘");
 					//왼쪽으로 전진 못하도록 막아야함
 					mainCh.stop_Move_Leftt(hero.get_Hero_X_Point());
 					
@@ -706,11 +762,38 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			//적군을 블록위에 안착시킨다.
 			enemy.init_Bound_Site(block.get_Left_Top_Point().x, (block.get_Widht() + block.get_Left_Top_Point().x), block.get_Left_Top_Point().y - block.get_Height());
 			
+		}
 			
 		}
 		
+		//적군 좌우측 벽으로 못들어가게 만듬
+		if((block.get_Left_Top_Point().x + block.get_Widht()) <= (enemy.get_enemy_Point().x ) || 
+				block.get_Left_Top_Point().x >= (enemy.get_enemy_Point().x+enemy.get_Enemy_Width()) ||
+				(block.get_Left_Top_Point().y + block.get_Height()) <= enemy.get_enemy_Point().y + enemy.get_Enemy_Height() - 10 ||
+				block.get_Left_Top_Point().y >= (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
+		
+		}else{
+			//System.out.println("벽에 부딛힘");
+			//벽에 부딛힐떄 방향전환 해주어야하며, 20정도 밀쳐 내야함
+			
+			//몬스터 오른쪽과 벽의 왼쪽 면 set_Move_Site //flag 가 ture 이면 왼쪽으로 전환
+			if((enemy.get_enemy_Point().x+enemy.get_Enemy_Width()) >=  block.get_Left_Top_Point().x){
+				enemy.set_Move_Site(true);
+				//enemy.knockback(false);//넉백으로 한번 밀처낸다.
+			}else { //몬스터 왼쪽과 벽의 오른쪽 면 
+				enemy.set_Move_Site(false);
+				//enemy.knockback(true);//넉백으로 한번 밀처낸다.
+			}
+			
+			
 		}
+		
+		
+		
+		
 	}
+	
+	
 	
 	
 	//충돌체크 
@@ -805,6 +888,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	
 	
+	
 	//충돌 체크 함수 캐릭터와 총알 등 
 	public void crash_Decide_Enemy(Weapon weapon, Enemy enemy, boolean get_Site){ //get_Site = 탐지구역이 좌측인지 우측인지
 
@@ -834,6 +918,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					enemy.set_Move_Site(true);
 					//적군 넉백효과
 					enemy.knockback(true);
+					//넉백과 동시에 피튀기는효과
+						
 				}
 				
 				//피격된 몬스터를 자신의 방향으로 달려오도록 해야한다. 즉 몬스터를 공격 상태로 변경해야한다.
@@ -850,7 +936,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				//	enemy.set_Down_Start_True();
 				//}
 				
-				
+				//총알이 적군을 피격함, 출혈 이벤트 시작
+				enemy.set_Blood_Event_Flag();
 				
 				weapon.set_Remove_Bullet_Choice(); //충돌 되면 총알의 상태를 삭제 상태로
 			
@@ -905,12 +992,32 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}
 					
 					
+					
+					//처맞았을때 피흘리기 시작
+					if(enemy.get_Blood_Event_Flag()){
+					enemy.set_Blood_Event_Count();
+					Enemy_Blood = tk.getImage("img/walker_Right_Blood/walker_Right_Blood_" + enemy.get_Blood_Event_Count() + ".png");
+					buffg.drawImage(Enemy_Blood, enemy.get_enemy_Point().x - 5, enemy.get_enemy_Point().y+8, this); 
+					}
+					
+					
+					
+					
+		
 				}else{//적군이 왼쪽으로 이동할때
 					if(((Walker) enemy).get_Find_Hero()){
 						walker_Png = tk.getImage("img/walker_Left_Attack/walker_Left_Attack_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png");
 					}else{
 					walker_Png = tk.getImage("img/walker_Left_Nomal/walker_Left_Nomal_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png");
 					}
+				}
+				
+				
+				//처맞았을때 피흘리기 시작
+				if(enemy.get_Blood_Event_Flag()){
+				enemy.set_Blood_Event_Count();
+				Enemy_Blood = tk.getImage("img/walker_Left_Blood/walker_Left_Blood_" + enemy.get_Blood_Event_Count() + ".png");
+				buffg.drawImage(Enemy_Blood, enemy.get_enemy_Point().x - 25, enemy.get_enemy_Point().y+8, this); 
 				}
 				
 				
@@ -1048,6 +1155,77 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	
 	
+	//이미지 버퍼링 미리 가져다 놓기
+		public void Image_Init(){
+			//이미지 버퍼링
+			
+					
+			
+			weapon_Png = tk.getImage("img/hero_Jump_Left.png"); //점프 이미지
+			buffg.drawImage(weapon_Png, 0,0, this);
+			
+			weapon_Png = tk.getImage("img/hero_Jump_Right.png");
+			buffg.drawImage(weapon_Png, 0,0, this);
+			
+			
+					for(int i=1; i<=4;i++){//영웅 시야 암전 버퍼링
+						weapon_Png = tk.getImage("img/Hero_View_Right/Hero_View_Right"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+						weapon_Png = tk.getImage("img/Hero_View_Left/Hero_View_Left"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+					}
+			
+					for(int i=1; i<=7;i++){ //무기 이미지 버퍼링
+						weapon_Png = tk.getImage("img/weapone_Right_1/pistol_Right_"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+						weapon_Png = tk.getImage("img/weapone_Left_1/pistol_Left_"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+						
+						weapon_Png = tk.getImage("img/weapone_Right_2/pistol_Right_"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+						weapon_Png = tk.getImage("img/weapone_Left_2/pistol_Left_"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+						
+						weapon_Png = tk.getImage("img/weapone_Right_3/pistol_Right_"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+						weapon_Png = tk.getImage("img/weapone_Left_3/pistol_Left_"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+					}
+					
+					for(int i=1; i<=12; i++){ //걸어다니는 이미지
+						weapon_Png = tk.getImage("img/Hero_Move_Right_Down/hero_Move_Right_"+i+".png"); //앉았을때
+						buffg.drawImage(weapon_Png, 0,0, this);
+						weapon_Png = tk.getImage("img/Hero_Move_Right/hero_Right_"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+						
+						weapon_Png = tk.getImage("img/Hero_Move_Left_Down/hero_Move_Left_"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+						weapon_Png = tk.getImage("img/Hero_Move_Left/hero_Left_"+i+".png");
+						buffg.drawImage(weapon_Png, 0,0, this);
+					}
+					
+					
+					for(int i=1; i<=9; i++){//워커 공격 시
+						weapon_Png = tk.getImage("img/walker_Right_Attack/walker_Right_Attack_"+i+".png"); //앉았을때
+						buffg.drawImage(weapon_Png, 0,0, this);
+						weapon_Png = tk.getImage("img/walker_Left_Attack/walker_Left_Attack_"+i+".png"); //앉았을때
+						buffg.drawImage(weapon_Png, 0,0, this);
+					}
+					
+					
+					//암전 버퍼링
+					for(int i=1; i<=4; i++){
+						weapon_Png = tk.getImage("img/Hero_View_Right/Hero_View_Right_" + i + ".png"); 
+						buffg.drawImage(weapon_Png, 0,0, this);
+						weapon_Png = tk.getImage("img/Hero_View_Left/Hero_View_Left_" + i + ".png"); 
+						buffg.drawImage(weapon_Png, 0,0, this);
+					}
+					
+					
+					
+					
+		}
+	
 	
 	
 	
@@ -1094,7 +1272,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				
 				repaint(); //화면을 지웠다 다시 그리기
-				Thread.sleep(18); //20milli sec 로 스레드 돌리기
+				Thread.sleep(20); //20milli sec 로 스레드 돌리기
 				
 			}
 		}catch (Exception e) {

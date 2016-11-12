@@ -26,7 +26,7 @@ public class Walker extends Enemy{
 		lock_Trans = true;
 		
 		//워커의 기본 생명력 50
-		enemy_HP = 500;
+		enemy_HP = 300;
 		
 	}
 	
@@ -113,13 +113,20 @@ public class Walker extends Enemy{
 		
 		
 		
+		
+					
+					
 		//피격 판정시 뒤로 밀려남 효과
 		public void knockback(boolean flag){
 			//flag 가 ture 이면 왼쪽으로 전환
 			if(flag){
+				
 				enemy_Point.x += 15;
+				
 			}else {
+				
 				enemy_Point.x -= 15;
+				
 			}
 			//넉백위치에서 다시금 경계 사각형을 그린다.
 			//range_Site_Width_Left_Point = enemy_Point.x;
@@ -220,9 +227,11 @@ public class Walker extends Enemy{
 					
 					//좌우로 움직일 범위 설정 적군의 공격범위에서는 끝까지 따라오도록
 					if((left_Bound_Site) >= enemy_Point.x + 30){
-						move_Site = false;
+						//move_Site = false; //오른쪽
+						enemy_Point.x -= 10; //위의 코드로 하면 방향이 바뀐다.
 					}else if((right_Bound_Site) <= enemy_Point.x){
-						move_Site = true;
+						//move_Site = true;//왼쪽
+						enemy_Point.x += 10;
 					}
 					
 				

@@ -92,7 +92,7 @@ public class Weapon implements Runnable{
 			
 			while(true){
 				pistol_Move(this.bullet_Side_LEFT_RIGHT);
-				Thread.sleep(4);
+				Thread.sleep(7);
 			}
 			
 		} catch (Exception e) {

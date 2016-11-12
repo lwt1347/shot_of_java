@@ -265,7 +265,9 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 				}
 				
 				
-				Thread.sleep(18); //20milli sec 로 스레드 돌리기
+				
+				
+				Thread.sleep(25); //20milli sec 로 스레드 돌리기
 				
 			}
 		}catch (Exception e) {
@@ -347,14 +349,47 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 			move_Site = false;
 		}
 	}
+
+	//총알 효과는 3번
+	private int blood_Event_Count = 0;
+	//피격시 피흘림 효과
+	private boolean blood_Event_Flag = false;
+	
+	//총알 효과
+	public void set_Blood_Event_Count(){
+		blood_Event_Count++;
+		if(blood_Event_Count==4){ //피흘림효과 3번 되면 멈춤
+			blood_Event_Flag = false;
+			blood_Event_Count = 0;
+		}
+	}
+	//피효과 그려줄 숫자
+	public int get_Blood_Event_Count(){
+		return blood_Event_Count;
+	}
+	public void set_Blood_Event_Flag(){ //true 일때 피흘림시작
+		blood_Event_Flag = true;
+	}
+	public boolean get_Blood_Event_Flag(){
+		return blood_Event_Flag; 
+	}
+	
+	
+	
 	
 	//피격 판정시 뒤로 밀려남 효과
-			public void knockback(boolean flag){
+	public void knockback(boolean flag){
+		
+
 				//flag 가 ture 이면 왼쪽으로 전환
 				if(flag){
+					
 					enemy_Point.x += 15;
+					
 				}else {
+					
 					enemy_Point.x -= 15;
+					
 				}
 			}
 	

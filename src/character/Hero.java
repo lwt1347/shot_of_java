@@ -137,7 +137,7 @@ public class Hero extends JPanel{
 	//오른쪽으로 걸을때 3~4 
 	private int right_Walk=0;
 	private int right_Walk_Delay = 0;
-	private int walk_Image_Temp = 13; //일어나있을때 걷는 모습은 13장 앉았을때는 6장
+	private int walk_Image_Temp = 8; //일어나있을때 걷는 모습은 13장 앉았을때는 6장
 	//오른쪽으로 증가
 	public int set_Right_Walk_Plus(){
 		if(right_Walk_Delay%2==0){

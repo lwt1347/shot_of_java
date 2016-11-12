@@ -130,7 +130,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 				//System.out.println(block.get_Left_Top_Point().x);
 			}
 			str += "&";
-			//블럭과 워커의 분기는 $로 표기한다.
+			//블럭과 워커의 분기는 &로 표기한다.
 			for(int i=0; i<array_Walker.size(); i++){
 				walker = (Walker) array_Walker.get(i);
 				str += walker.get_Left_Bound_Site() + "@" + walker.get_Right_Bound_Site() + "@" + walker.get_Bottom_Bound_Site() + "&";
@@ -314,7 +314,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	}	
 		
 		//워커 만들기
-		if(walker_Make){
+		if(walker_Make){		//바운딩 범위, 위치, 위치
 			walker = new Walker(start_Point.x, start_Point.x, start_Point.y);  //왜 움직이지?
 			//탈출시 포문도 함께 탈출
 			boolean forFlag = false;
@@ -338,7 +338,10 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 						walker.set_Enemy_Point_Y();
 						
 						}else{
-							walker.init_Bound_Site(block.get_Left_Top_Point().x + 30, block.get_Widht(), walker.get_enemy_Point().y + 70);
+							//walker.init_Bound_Site(block.get_Left_Top_Point().x + 30, block.get_Widht(), walker.get_enemy_Point().y + 70);
+							//아래코드와 같이 해야 블록위에 바로 적군이 생긴다.
+							walker.init_Bound_Site(start_Point.x, start_Point.x, walker.get_enemy_Point().y + 70);
+							
 							array_Walker.add(walker);
 							//겹칠때 탈출
 							forFlag = true;
