@@ -21,6 +21,9 @@ public class Stage {
 	
 	Walker temp_Walker;
 	
+	//포탈 생성
+	Next_Page_Portal portal;
+	
 	//블록의 좌상단 포인트를 반환하기 위한 임시 변수
 	Point temp_Block_Left_Top_Point;
 	//블록의 넓이, 높이 임시 변수
@@ -42,7 +45,8 @@ public class Stage {
 	
 	walker_Array = new ArrayList<Walker>(); //워커 초기화
 	
-	
+	//포탈 초기화
+	portal = new Next_Page_Portal(0, 0);
 	
 	
 	}
@@ -81,7 +85,7 @@ public class Stage {
 			e.printStackTrace();
 		}
 		//txt 로 저장된 맵을 파싱해서 해석한다.
-		String[] Map = line.split("#");
+		String[] Map = line.split("벽임");
 		String[] square_Element = null;
 		for(int i=0; i<Map.length-1; i++){ //벽돌 생성
 			
@@ -100,9 +104,9 @@ public class Stage {
 		
 		//워커 생성
 		
-		Map = line.split("&");
+		Map = line.split("워커");
 		String[] walker_Element = null;
-		for(int i=1; i<Map.length; i++){
+		for(int i=1; i<Map.length-1; i++){
 		//for(int i=1; i<3; i++){	
 			walker_Element = Map[i].split("@");
 			//System.out.println(walker_Element.length);
@@ -114,6 +118,16 @@ public class Stage {
 		}
 		//System.out.println(Map.length);
 		//^359^359^443&724^724^644&222^222^829&793^793^323&826^826^108&
+		
+		//포탈 정보는 *로 나눈어서 제일 마지막에 들어간다.
+				Map = line.split("포탈");
+				String[] portal_Point = null;
+		portal_Point = Map[1].split("@");
+				//마지막으로파싱해서 포탈의 위치를 알려준다
+		portal.set_portal_Point(Integer.parseInt(portal_Point[0]), Integer.parseInt(portal_Point[1]));
+				//50@1700
+				
+		
 				
 	}
 	
@@ -127,5 +141,13 @@ public class Stage {
 		return walker_Array;
 	}
 	
-
+	//생성된 포탈 을 반환한다.
+	public Next_Page_Portal get_Next_Page_Portal(){
+		return portal;
+	}
+	
+	
+	
+	
+	
 }

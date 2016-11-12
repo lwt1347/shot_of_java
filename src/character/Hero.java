@@ -111,10 +111,15 @@ public class Hero extends JPanel{
 	public synchronized void move(){  //synchronized 해당 함수가 작동하는 동안 동기화를 수행한다.
 		//좌우 움직임 컨트롤
 		if(x_Flag_Left){
+			//벽보다 왼쪽으로 가지 못하도록 
+			if(x_Point > 0){
 			x_Point -= hero_Speed;
+			}
 		}
 		if(x_Flag_Right){
+			if(x_Point < 950){ //벽보다 오른쪽으로 가지 못하도록
 			x_Point += hero_Speed;
+			}
 		}
 	}
 	
@@ -370,6 +375,8 @@ public class Hero extends JPanel{
 		hero_Speed = 5; //영웅 이속 변경
 		walk_Image_Temp = 13;
 	}
+	
+
 	
 	//주인공 앉아있을때 상태 반환
 	public boolean get_Sit_State(){

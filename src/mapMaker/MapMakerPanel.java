@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 
 import enemy.Walker;
 import mapData.Block;
+import mapData.Next_Page_Portal;
 
 public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionListener, MouseListener{
 
@@ -25,6 +26,8 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	
 	boolean block_Make = false; //1번 블럭 생성 하기 위한 플래그
 	boolean walker_Make = false; //2번 워커 생성
+	boolean potal_Make = false; //3번 포탈 생성
+	
 	
 	//벽돌에 집어 넣는다.
 	Block block;
@@ -32,6 +35,10 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	
 	//워커 
 	Walker walker;
+	
+	
+	//포탈
+	Next_Page_Portal portal;
 	
 	ArrayList<Block> array_Block;	
 	ArrayList<Walker> array_Walker;
@@ -56,6 +63,8 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 		array_Block = new ArrayList<Block>();
 		
 		array_Walker = new ArrayList<Walker>();
+		
+		portal = new Next_Page_Portal(0, 0);
 		
 		setSize(1000, 1900);
 		setVisible(true);			   //프레임을 눈에 보이게 띄움	
@@ -112,6 +121,9 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			g.drawRect(walker.get_enemy_Point().x, walker.get_enemy_Point().y, walker.get_Enemy_Width(), walker.get_Enemy_Height());
 		}
 		
+		//포탈 그리기
+		g.drawRect(portal.get_Left_Top_Point().x, portal.get_Left_Top_Point().y, 30, 50);
+		
 		
 	}
 	
@@ -126,22 +138,25 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			for(int i=0; i<array_Block.size(); i++){
 				block = (Block) array_Block.get(i);
 				str+= block.get_Left_Top_Point().x + "@" + block.get_Left_Top_Point().y + "@" + 
-						block.get_Widht() + "@" + block.get_Height() + "#";
+						block.get_Widht() + "@" + block.get_Height() + "벽임";
 				//System.out.println(block.get_Left_Top_Point().x);
 			}
-			str += "&";
+			str += "워커";
 			//블럭과 워커의 분기는 &로 표기한다.
 			for(int i=0; i<array_Walker.size(); i++){
 				walker = (Walker) array_Walker.get(i);
-				str += walker.get_Left_Bound_Site() + "@" + walker.get_Right_Bound_Site() + "@" + walker.get_Bottom_Bound_Site() + "&";
+				str += walker.get_Left_Bound_Site() + "@" + walker.get_Right_Bound_Site() + "@" + walker.get_Bottom_Bound_Site() + "워커";
 			}
 			
+			//포탈만들기
+			str += "포탈" + portal.get_Left_Top_Point().x + "@" + (portal.get_Left_Top_Point().y-20);
+			//4@1804@994@84벽임616@1602@270@50벽임워커721@721@1804워커730@730@1603워커포탈50@1700
 			
 			//System.out.println(str);
 			
 			//파일 만들기
 			try{
-			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_1.txt"; //1스테이지로 만듬
+			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_3.txt"; //1스테이지로 만듬
 			
 			//파일 객체생성
 			File file = new File(fileName);
@@ -168,14 +183,21 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 				
 				block_Make = true;
 				walker_Make = false;
+				potal_Make = false;
 			break;
 			
 			case KeyEvent.VK_2 : //블럭 생성
 				
 				block_Make = false;
 				walker_Make = true; //워커 생성
-				
+				potal_Make = false;
 			break;
+			
+			case KeyEvent.VK_3 : //
+				block_Make = false;
+				walker_Make = false; //워커 생성
+				potal_Make = true;
+				break;
 		}
 		
 		
@@ -351,18 +373,45 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 					if(forFlag){
 						break;
 					}
-					
-				
-				
-				
-			
 			}
 			
+		}
+		
+		
+		
+		if(potal_Make){ //포탈 만들기
 			
+			portal.set_portal_Point(start_Point.x, start_Point.y);
+			boolean forFlag = false;
+			//안겹쳤을때 워커의 포탈의 겹칠때까지 내린다.y 축으로
+			while(true){
+				
+				for(int i=0; i<array_Block.size(); i++){
+					block = (Block) array_Block.get(i);
+							
+					
+					if(block.get_Left_Top_Point().x > portal.get_Left_Top_Point().x + 30 || 
+						block.get_Left_Top_Point().x + block.get_Widht() <= portal.get_Left_Top_Point().x ||
+						block.get_Left_Top_Point().y > portal.get_Left_Top_Point().y + 50 ||
+						block.get_Left_Top_Point().y + block.get_Height() <= portal.get_Left_Top_Point().y){
+						
+						//안겹쳤을때 워커의 위치를 겹칠때까지 내린다.y 축으로
+						portal.set_Portal_Point_Y();
+						
+						}else{
+							//walker.init_Bound_Site(block.get_Left_Top_Point().x + 30, block.get_Widht(), walker.get_enemy_Point().y + 70);
+							//아래코드와 같이 해야 블록위에 바로 적군이 생긴다.
+							
+							//겹칠때 탈출
+							forFlag = true;
+							break;
+						}
+					}
+				if(forFlag){
+					break;
+				}
 			
-			
-			
-			
+			}
 			
 		}
 		

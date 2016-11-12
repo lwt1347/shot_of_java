@@ -17,6 +17,7 @@ import character.Hero;
 import enemy.Enemy;
 import enemy.Walker;
 import mapData.Block;
+import mapData.Next_Page_Portal;
 import mapData.Stage;
 import weapon.Pistol;
 import weapon.Weapon;
@@ -71,6 +72,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	//총알이 적군을 적중하면 피튀기는 효과
 	Image Enemy_Blood;
 	
+	//포탈 이미지
+	Image portal_Img;
 	
 	//더블 버퍼링용 이미지
 	Image buffImage;
@@ -85,6 +88,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	//히어로 생성
 	Hero mainCh;
+	
+	//문 생성
+	Next_Page_Portal portal;
 	
 	//기본 적군 생성
 	Enemy enemy;
@@ -169,6 +175,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//주인공 생성
 		mainCh = new Hero();
 		
+		//문생성
+		portal = new Next_Page_Portal(0,0);
+		
 		
 		//총 이미지 변경 true 이면 변경시작
 		attack_Img_Temp = false;
@@ -184,6 +193,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		//스테이지 1 생성
 		stage = new Stage();
+
+			
 		
 		
 		attack = false; //공격 상태 설정 
@@ -203,6 +214,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		Image_Init_Flag = true;
 		
 		mainCh = new Hero();
+		
+		
+		//재시작 할 때마다 그 맵의 문 위치를 넣어주어야함
+		//portal = new Next_Page_Portal(mainCh.getLocation()); //위치만 지정하면된다.
+		
+		
 		stage = new Stage();
 		stage.stage_Num(stage_Num); //현재 스테이지를 재성성한다.
 		enemy_List.clear(); //현재 생성된 적군을 다 제거하고 새롭게 생성한다.
@@ -246,7 +263,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		buffg.setColor(Color.black);
 		
 		//실제로 그려진 그림을 가져온다.
-		//draw();
+		draw();
 		
 		
 				
@@ -508,7 +525,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			stage_Num++; //다음 스테이지로 넘어감 //현 위치 초기화 1스테이지
 			//System.out.println();
 			//스테이지넘버를 한번 반영해서 스테이지를 만든다.
-			stage_Num = 1;
+			//stage_Num = 4;
 			stage.map_Stage(stage_Num);
 
 			//기본 적군 워커 생성
@@ -530,12 +547,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		
+		
+		
+		
 		for(int i=0; i<stage.get_Block().size(); i++){
-			 //fillRect
-			//buffg.fillRect(stage.get_Block().get(i).get_Left_Top_Point().x,
-			//		stage.get_Block().get(i).get_Left_Top_Point().y,
-			//		stage.get_Block().get(i).get_Widht(), 
-			//		stage.get_Block().get(i).get_Height());
 			
 			//땅이미지 변경해줌
 			ground_Img_Temp = 1;
@@ -543,19 +558,51 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			//생성된 맵의 x측 길이를 통해 그라운드 이미지가 몇개 들어갈것인지 그린다.
 			ground_Temp_X = stage.get_Block().get(i).get_Left_Top_Point().x;
 			while(true){
-				ground_Png = tk.getImage("img/ground_Img/ground_Img_" + ground_Img_Temp + ".png");
-				buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-10, this);
-				ground_Temp_X+=10; //10범위마다 하나씩 그림
-				if(ground_Temp_X >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
-					ground_Png = tk.getImage("img/ground_Img/ground_Img_30.png"); //벽 매무새
+				
+				
+				
+				
+				
+				
+				//높이가 높은 벽일때
+				if(stage.get_Block().get(i).get_Height() > 60){
+					ground_Png = tk.getImage("img/ground_Img/ground_Img_" + ground_Img_Temp + ".png");
 					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-10, this);
-					break;
+					
+					ground_Temp_X+=10; //10범위마다 하나씩 그림
+					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
+						ground_Png = tk.getImage("img/ground_Img/ground_Img_30.png"); //벽 매무새
+						buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-10, this);
+						break;
+					}
+					ground_Img_Temp++;
+					if(ground_Img_Temp == 31){//그림보다 사진량이 많아지면 안된다.
+						ground_Img_Temp = 1;
+					}
+				}else{ //높이가 낮은 벽일때
+					ground_Png = tk.getImage("img/ground_Img/ground_Img2_" + ground_Img_Temp + ".png");
+					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
+					
+					ground_Temp_X+=10; //10범위마다 하나씩 그림
+					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
+						ground_Png = tk.getImage("img/ground_Img/ground_Img2_11.png"); //벽 매무새
+						buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
+						break;
+					}
+					ground_Img_Temp++;
+					if(ground_Img_Temp == 12){//그림보다 사진량이 많아지면 안된다.
+						ground_Img_Temp = 1;
+					}
 				}
 				
-				ground_Img_Temp++;
-				if(ground_Img_Temp == 31){//그림보다 사진량이 많아지면 안된다.
-					ground_Img_Temp = 1;
-				}
+				
+				
+				 //fillRect
+				//buffg.fillRect(stage.get_Block().get(i).get_Left_Top_Point().x,
+					//	stage.get_Block().get(i).get_Left_Top_Point().y,
+						//stage.get_Block().get(i).get_Widht(), 
+						//stage.get_Block().get(i).get_Height());
+				
 			}
 			
 		
@@ -575,6 +622,16 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 	
 		
+		//문생성 스테이지 생성할때 받아와야한다.
+		portal = stage.get_Next_Page_Portal();
+		
+		//포탈이미지 그리기
+		portal_Img = tk.getImage("img/portal/portal_" +portal.set_portal_Img_Cut()+ ".png");
+		buffg.drawImage(portal_Img, portal.get_Left_Top_Point().x, portal.get_Left_Top_Point().y, this);
+		//System.out.println(portal.get_Left_Top_Point().y);
+		
+		//포탈에 캐릭터가 들어가면
+		crash_Decide_Block(mainCh, portal);
 		
 	}
 	
@@ -645,6 +702,24 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	private int auto_Jump_Down_Head_Flag = 0; //머리 끼임 현상 방지
 	
+	
+	//포탈과 캐릭터 중복 확인
+	public void crash_Decide_Block(Hero hero, Next_Page_Portal portal){
+		if((hero.get_Hero_X_Point()+hero.get_Hero_Width()-30) < (portal.get_Left_Top_Point().x ) || 
+				hero.get_Hero_X_Point() > (portal.get_Left_Top_Point().x+50) ||
+				(hero.get_Hero_Y_Point()+hero.get_Hero_Height()) < portal.get_Left_Top_Point().y ||
+				hero.get_Hero_Y_Point() > (portal.get_Left_Top_Point().y+50)){
+			
+		}else{
+			
+			//포탈 탔을때 다음판으로 넘어감
+			stage_Num++;
+			restart();
+			
+		}
+	}
+	
+	
 	//충돌 체크 맵과 메인 캐릭터 캐릭터 x,y 
 	public void crash_Decide_Block(Hero hero, Block block){ //what_Object 1 일때 벽과 캐릭터 충돌
 
@@ -653,7 +728,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			jump_Up_Lock_Temp = true;
 		}
 		
-			
+		
 			
 			if((hero.get_Hero_X_Point()+hero.get_Hero_Width()) < (block.get_Left_Top_Point().x ) || 
 					hero.get_Hero_X_Point() > (block.get_Left_Top_Point().x+block.get_Widht()) ||
@@ -666,7 +741,6 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				block.set_Contect_F();
 				
 				
-				
 			}else {
 				//캐릭터가 땅을 밝으면 true
 				block.set_Contect_T();
@@ -674,9 +748,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				//캐릭터가 점프를 하지않고 떨어졌을때 중력 가속도를 초기화 한다.
 				mainCh.set_dgSum_Zero();
 				
+			
+				
 				//캐릭터의 머리가 벽의 바닥에 닿았을때
-				if(hero.get_Hero_Y_Point() >= block.get_Left_Top_Point().y + block.get_Height() - 15){
+				if(hero.get_Hero_Y_Point() >= block.get_Left_Top_Point().y + block.get_Height() - 10){
 					System.out.println("머리와 바닥 부딛힘");
+					
 					
 					//캐릭터가 벽과 부딛히면 바로 아래쪽으로 떨어짐
 					mainCh.set_Jump_Hero_UP_DOWN();
@@ -689,7 +766,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					mainCh.auto_Jump_Down_Head(block.get_Left_Top_Point().y + block.get_Height() - hero.get_Hero_Y_Point());
 					}
 					
-				}else 
+				}else
 				//캐릭터의 하단이 발판의 상단이 겹쳤을때 멈출 지점 알려준다.
 				if(hero.get_Hero_Y_Point()+hero.get_Hero_Height()  <=  block.get_Left_Top_Point().y + 25){
 					//System.out.println("위에 밝고 있음");
@@ -708,8 +785,6 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					jump_Up_Lock_Temp = false;
 					
 				}
-					
-					
 					//위에 밝을때까지 떨어지다가 밝고 있음 if 문에 들어오면 점프 중지 로 들어온다.
 					
 				}//캐릭터 우측과 벽의 좌측이 박았을때
@@ -724,17 +799,22 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					//왼쪽으로 전진 못하도록 막아야함
 					mainCh.stop_Move_Leftt(hero.get_Hero_X_Point());
 					
+				}else if(hero.get_Hero_Y_Point() >= block.get_Left_Top_Point().y + block.get_Height() - 20){
+					//-20은 캐릭터의 위치와 발판의 위치에의해 변경될수 있다. 이쪽 코드는 캐릭터가 앉은 상태에서 일어나지 못하도록 함
+					//앉기 기능
+					mainCh.set_Hero_Sit();
 				}
 				else {
 					block.set_Contect_F();//캐릭터가 땅을 밝지 않으면 false 벽을 밝고 있지 않을때는 옛沮層돈 
+					
 				}
-
+				
 				
 			}
 			
 		}
-		
 	
+
 	//적군과 블록의 충돌 검사 떨어지다가 맞물려야한다.
 	public void crash_Decide_Enemy_Block(Block block, Enemy enemy){
 		
@@ -1154,7 +1234,6 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	}
 	
 	
-	
 	//이미지 버퍼링 미리 가져다 놓기
 		public void Image_Init(){
 			//이미지 버퍼링
@@ -1249,6 +1328,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				
 				mainCh.move();//캐릭터의 움직임을 항상 체크한다.
+
+			
+				
 				
 				bullet_Process();//총알 생성 함수 호출
 				
@@ -1362,6 +1444,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		case KeyEvent.VK_RIGHT :
 			mainCh.set_Hero_X_Right_Stop();
 			break;
+			
+			
+			
+			
 		case KeyEvent.VK_A :
 			//총알생성을 중지한다..
 		 //다연발이 아닐때
