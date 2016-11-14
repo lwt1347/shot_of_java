@@ -8,14 +8,19 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.util.ArrayList;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import character.Hero;
 import enemy.Enemy;
 import enemy.Walker;
+import enemy.Walker_Dog;
 import mapData.Block;
 import mapData.Next_Page_Portal;
 import mapData.Stage;
@@ -54,6 +59,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	Image bullet_Png;
 	Image walker_Png;
 	
+	
+	Image walker_Dog;
+	
+	
 	//무기이미지
 	Image weapon_Png;
 	
@@ -74,6 +83,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	//포탈 이미지
 	Image portal_Img;
+	
+	//좌상단에 뜰 무기 이미지
+	Image now_Weapone;
+	
 	
 	//더블 버퍼링용 이미지
 	Image buffImage;
@@ -115,6 +128,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	//점프를 실행할 것인가 ? true 이면 실행한다.
 	boolean jump;
+	
+	//총소리 사운드 넣기 위함
+	Clip clip;
+	File sound = new File("sound/pistol/pistol_1.wav");
 	
 	
 	//공격 기본생성자
@@ -159,7 +176,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		//백그라운드 이미지
-		background_Img = tk.getImage("img/background.png");
+		background_Img = tk.getImage("img/back_Ground/back_Ground_1.png");
 		
 		
 		
@@ -205,10 +222,21 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		jump = false; //점프 상태설정
 		
-	}
+		
+		
+		
+			
 	
+	}
+
 	//재시작하기 위함
 	public void restart(){
+		
+		
+		//메모리 누수 제거
+		bullet_List.clear();
+		enemy_List.clear();
+		stage.reset_Memory();
 		
 		//이미지 버퍼링용
 		Image_Init_Flag = true;
@@ -238,7 +266,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		buffg = buffImage.getGraphics();
 		
 		//배그라운드 이미지
-		//buffg.drawImage(background_Img, 0, -500, this);
+		buffg.drawImage(background_Img, 0, 500, this);
 		
 		if(Image_Init_Flag){
 		Image_Init(); //이미지 버퍼링
@@ -259,8 +287,11 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		//색깔 입히기	
 		buffg.setColor(Color.gray);
-		buffg.fillRect(0, 0, width, height);
+		//buffg.fillRect(0, 0, width, height);
 		buffg.setColor(Color.black);
+		
+		
+		
 		
 		//실제로 그려진 그림을 가져온다.
 		draw();
@@ -288,6 +319,15 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//buffg.drawImage(death_Png, 0,vertical_View - 1000, this); //죽었을때 이벤트
 		
 		
+		//무기 이미지를 그려 넣는다.
+		if(weapon_Number == 1){
+		now_Weapone = tk.getImage("img/weapone_Right_1/now_Pistol.png");
+		}else if(weapon_Number == 2){
+			now_Weapone = tk.getImage("img/weapone_Right_2/now_Pistol.png");
+		}else if(weapon_Number == 3){
+			now_Weapone = tk.getImage("img/weapone_Right_3/now_Pistol.png");
+		}
+		buffg.drawImage(now_Weapone, 70, vertical_View - 600, this);
 		
 		
 		//화면에 버퍼에 그린 그림을 가져와 그리기
@@ -296,8 +336,16 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	public void draw_Hero(){
 		
+		//프레임에 저장된 .png 이미지를 그려넣습니다. 영웅 그려넣기
+		buffg.drawImage(hero_Png, mainCh.get_Hero_X_Point()-7, mainCh.get_Hero_Y_Point()-17, this);
 		
-		
+		//영웅 피격시 사망
+		if(mainCh.get_Hero_Hp() <= 0){
+			buffg.drawImage(death_Png, 0,vertical_View - 1000, this); //죽었을때 이벤트
+			//죽으면 움직이지 못해야 한다.
+			
+			
+		}
 		
 		
 		
@@ -341,6 +389,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 						hero_Png = tk.getImage("img/Hero_Move_Right_Down/hero_Move_Right_"+mainCh.set_Right_Walk_Plus()+".png"); //오른쪽으로 앉아서 갈때 걸어다니는 이미지
 					}else{
 					hero_Png = tk.getImage("img/Hero_Move_Right/hero_Right_"+mainCh.set_Right_Walk_Plus()+".png"); //오른쪽으로 걸어다니는 이미지
+					
 					}
 					
 					
@@ -358,8 +407,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				//왼쪽으로 걸어갈때
 				
 				
-				//프레임에 저장된 .png 이미지를 그려넣습니다. 영웅 그려넣기
-				buffg.drawImage(hero_Png, mainCh.get_Hero_X_Point()-7, mainCh.get_Hero_Y_Point()-17, this);
+				
 				
 				
 				
@@ -480,9 +528,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				
 				
-				
-				
-				
+			
 				
 				
 				
@@ -566,17 +612,17 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				//높이가 높은 벽일때
 				if(stage.get_Block().get(i).get_Height() > 60){
-					ground_Png = tk.getImage("img/ground_Img/ground_Img_" + ground_Img_Temp + ".png");
-					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-10, this);
+					ground_Png = tk.getImage("img/ground/ground_Img_" + ground_Img_Temp + ".png");
+					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
 					
-					ground_Temp_X+=10; //10범위마다 하나씩 그림
+					ground_Temp_X+=20; //10범위마다 하나씩 그림
 					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
-						ground_Png = tk.getImage("img/ground_Img/ground_Img_30.png"); //벽 매무새
-						buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-10, this);
+						//ground_Png = tk.getImage("img/ground/ground_Img_51.png"); //벽 매무새
+						//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
 						break;
 					}
 					ground_Img_Temp++;
-					if(ground_Img_Temp == 31){//그림보다 사진량이 많아지면 안된다.
+					if(ground_Img_Temp == 52){//그림보다 사진량이 많아지면 안된다.
 						ground_Img_Temp = 1;
 					}
 				}else{ //높이가 낮은 벽일때
@@ -886,6 +932,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//what_Object = 1 이면 캐릭터, 2 이면 총알
 		
 			
+			
 				if(get_Site){ //좌측을 탐지할때. 사각형의 범위가 캐릭터의 좌측부터 시작하기 때문에 넉백 계산시에 캐릭터의 넓이 만큼 경계 범위를 x 축의 범위(width)에 더해주어여한다. 
 					
 					//System.out.println("좌측 이동 캐릭터 위치 : " + enemy.get_enemy_Point().x + ", 캐릭터 좌측 시야 : " + (enemy.get_enemy_Point().x - enemy.get_Range_Site_Width()));
@@ -909,8 +956,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 							
 						}else{
 							//좌측방향 넉백
+							if(mainCh.get_Hero_Hp() > 0) //영웅이 살아있어야 넉백
 							hero.left_Knock_Back();
 							//System.out.println("a");
+							//여웅 피 떨어짐
+							//mainCh.set_Hero_Hp_Minus();
+							
 						}
 						
 						
@@ -939,7 +990,11 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					
 						}else {
 							//우측방향 넉백
+							if(mainCh.get_Hero_Hp() > 0) //영웅이 살아있어야 넉백
 							hero.right_Knock_Back();
+							
+							//여웅 피 떨어짐
+							//mainCh.set_Hero_Hp_Minus();
 						}
 						
 					}
@@ -1043,8 +1098,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				enemy.set_Down_Start_True();
 				//추적 알고리즘도 함께 움직야야한다.
+				if(enemy instanceof Walker){ 
 				enemy.init_Range_Site(stage.get_Walker().get(i).get_enemy_Point().x, stage.get_Walker().get(i).get_enemy_Point().y);
-				
+				}
 				//System.out.println("a");
 				
 				//에너미가 벽 너머로 밀린다면 삭제
@@ -1063,27 +1119,15 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				
 				//적군 이미지 적군이 오른쪽으로 이동중일때
-				if(!((Walker) enemy).get_Right_Flag()){
-					
-					if(((Walker) enemy).get_Find_Hero()){
-						walker_Png = tk.getImage("img/walker_Right_Attack/walker_Right_Attack_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png"); //공격 범위내에 영웅이 있을때
-					}else {
-						walker_Png = tk.getImage("img/walker_Right_Nomal/walker_Right_Nomal_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png");
-					}
-					
-					
+				if(!(enemy).get_Right_Flag()){
 					
 					//처맞았을때 피흘리기 시작
 					if(enemy.get_Blood_Event_Flag()){
 					enemy.set_Blood_Event_Count();
-					Enemy_Blood = tk.getImage("img/walker_Right_Blood/walker_Right_Blood_" + enemy.get_Blood_Event_Count() + ".png");
+					Enemy_Blood = tk.getImage("img/Right_Blood/walker_Right_Blood_" + enemy.get_Blood_Event_Count() + ".png");
 					buffg.drawImage(Enemy_Blood, enemy.get_enemy_Point().x - 5, enemy.get_enemy_Point().y+8, this); 
 					}
 					
-					
-					
-					
-		
 				}else{//적군이 왼쪽으로 이동할때
 					if(((Walker) enemy).get_Find_Hero()){
 						walker_Png = tk.getImage("img/walker_Left_Attack/walker_Left_Attack_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png");
@@ -1092,21 +1136,50 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}
 				}
 				
-				
 				//처맞았을때 피흘리기 시작
 				if(enemy.get_Blood_Event_Flag()){
 				enemy.set_Blood_Event_Count();
-				Enemy_Blood = tk.getImage("img/walker_Left_Blood/walker_Left_Blood_" + enemy.get_Blood_Event_Count() + ".png");
+				Enemy_Blood = tk.getImage("img/Left_Blood/walker_Left_Blood_" + enemy.get_Blood_Event_Count() + ".png");
 				buffg.drawImage(Enemy_Blood, enemy.get_enemy_Point().x - 25, enemy.get_enemy_Point().y+8, this); 
 				}
-				
-				
+					
 				buffg.drawImage(walker_Png, enemy.get_enemy_Point().x - 5, enemy.get_enemy_Point().y+8, this); //+8을 하는 이유는 안하면 공중부양함
-				
 				buffg.drawRect(enemy.get_enemy_Point().x,  enemy.get_enemy_Point().y, ((Walker) enemy).get_Enemy_Width(),  ((Walker) enemy).get_Enemy_Height()); //사각형으로 일단 대체
 				
-				
 			}
+			
+			
+			//워커독 구현
+			if(enemy instanceof Walker_Dog){
+				//워커독 이미지 그리기
+				if(((Walker_Dog) enemy).get_Find_Hero()){//오른쪽 이동중
+					walker_Dog = tk.getImage("img/walker_Dog_Left/walker_Dog_Left_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png");//공격 범위내에 영웅이 있을때
+				}else {
+					walker_Dog = tk.getImage("img/walker_Dog_Left/walker_Dog_Left_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png");
+				}
+				
+				//워커 독 이미지 그리기
+				if(((Walker_Dog)enemy).get_Find_Hero()){//왼쪽 이동중
+					//공격범위 내에 영웅 있을때
+					walker_Dog = tk.getImage("img/walker_Dog_Left_Attack/walker_Dog_Left_Attack_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png"); //공격 범위내에 영웅이 있을때
+				}else {
+					walker_Dog = tk.getImage("img/walker_Dog_Left/walker_Dog_Left_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png");
+					System.out.println(((Walker_Dog) enemy).set_Walk_Plus());
+				}
+				
+				buffg.drawRect(enemy.get_enemy_Point().x, enemy.get_enemy_Point().y, enemy.get_Enemy_Width(), enemy.get_Enemy_Height());
+				buffg.drawImage(walker_Dog, enemy.get_enemy_Point().x - 5, enemy.get_enemy_Point().y+8, this); //+8을 하는 이유는 안하면 공중부양함
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			
 			//적군을 움직이는 함수 호출 -> 멀티쓰레드로 변경 생성과 동시에 적군 클레스 쓰레드 자동생성
 			//enemy.enemy_Move();
@@ -1168,7 +1241,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 		}
 	
-	
+		//워커 독 넣기
+		Walker_Dog a = new Walker_Dog(640, 640, 1704);
+		enemy_List.add(a);
 		
 	}
 	
@@ -1398,19 +1473,71 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				//공격중일때 총알을 생성한다.
 				attack = true;
 				weapon_Number1_Flag = false; //눌렀을때만 발사 때었을때 true 재장전 가능
+				
+				//기본 총소리
+				sound = new File("sound/pistol/pistol_1.wav");
+					
+				try{
+					clip = AudioSystem.getClip();
+					clip.open(AudioSystem.getAudioInputStream(sound));
+				//	clip.start();
+				}catch(Exception e1){
+					
+				}
 			}
 			
 			if(weapon_Number == 2 && weapon_Number2_Flag){
 				//공격중일때 총알을 생성한다.
 				attack = true;
 				weapon_Number2_Flag = false; //눌렀을때만 발사 때었을때 true 재장전 가능
+				//쌍 총소리
+				sound = new File("sound/pistol/pistol_2.wav");
+				
+				try{
+					clip = AudioSystem.getClip();
+					clip.open(AudioSystem.getAudioInputStream(sound));
+				//	clip.start();
+				}catch(Exception e1){
+					
+				}
 			}
 			
 			if(weapon_Number == 3 && weapon_Number3_Flag){
 				//공격중일때 총알을 생성한다.
 				attack = true;
 				weapon_Number3_Flag = false; //눌렀을때만 발사 때었을때 true 재장전 가능
+				//기관총 총소리
+				sound = new File("sound/pistol/pistol_3.wav");
+				
+				try{
+					clip = AudioSystem.getClip();
+					clip.open(AudioSystem.getAudioInputStream(sound));
+				//	clip.start();
+				}catch(Exception e1){
+					
+				}
+				
 			}
+			/*
+			if(weapon_Number1_Flag || weapon_Number2_Flag || weapon_Number3_Flag){
+			 //기본 총소리 사운드
+			try{
+				clip = AudioSystem.getClip();
+				clip.open(AudioSystem.getAudioInputStream(sound));
+				clip.start();
+			}catch(Exception e1){
+				
+			}
+			if(weapon_Number == 3){
+			sound = new File("sound/pistol/탄피.wav");
+			try{
+				clip = AudioSystem.getClip();
+				clip.open(AudioSystem.getAudioInputStream(sound));
+				clip.start();
+			}catch(Exception e1){
+				
+			}
+			}*/
 			
 			
 			break;

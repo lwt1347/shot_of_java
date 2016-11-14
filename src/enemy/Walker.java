@@ -26,7 +26,7 @@ public class Walker extends Enemy{
 		lock_Trans = true;
 		
 		//워커의 기본 생명력 50
-		enemy_HP = 300;
+		enemy_HP = 30;
 		
 	}
 	
@@ -154,10 +154,7 @@ public class Walker extends Enemy{
 			return right_Walk;
 		}
 		
-		//오른쪽으로 움직이는중인지 체크한다
-		public boolean get_Right_Flag(){ //false 일때 오른쪽
-			return move_Site;
-		}
+		
 		
 		
 		

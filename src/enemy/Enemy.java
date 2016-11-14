@@ -374,7 +374,10 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 		return blood_Event_Flag; 
 	}
 	
-	
+	//오른쪽으로 움직이는중인지 체크한다
+	public boolean get_Right_Flag(){ //false 일때 오른쪽
+		return move_Site;
+	}
 	
 	
 	//피격 판정시 뒤로 밀려남 효과

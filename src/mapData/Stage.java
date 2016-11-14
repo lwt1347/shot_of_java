@@ -47,9 +47,15 @@ public class Stage {
 	
 	//포탈 초기화
 	portal = new Next_Page_Portal(0, 0);
-	
-	
 	}
+	
+	
+	//메모리 누수 제거
+	public void reset_Memory(){
+		block_Array.clear();
+		walker_Array.clear();
+	}
+	
 	
 	//1스테이지
 	public void map_Stage(int stage_Num){

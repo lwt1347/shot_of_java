@@ -41,6 +41,8 @@ public class Hero extends JPanel{
 	int gSum;
 	int dgSum;
 	
+	//영웅 HP
+	int hp;
 	
 	//점프 스케줄링 점프 스케줄링 이 어느정도 도달해야 다시 띌수 있도록 조정
 	int jump_Time_Schedule;
@@ -64,6 +66,9 @@ public class Hero extends JPanel{
 		//히어로 폭
 		hero_Width = 30;
 		hero_Height = 45;
+		
+		//히어로 피
+		hp = 1;
 		
 		x_Flag_Left = false;
 		x_Flag_Right = false;
@@ -89,6 +94,22 @@ public class Hero extends JPanel{
 		//점프 스케줄링 0 으로 초기화
 		jump_Time_Schedule = 0;
 	}
+	
+	
+	//영웅 피딸기 //영웅 피가 0 일때 못움직임
+	
+	public void set_Hero_Hp_Minus(){
+		hp--;
+		if(hp <= 0){
+			hero_Speed = 0;
+		}
+	}
+	//영웅 피 반환
+	public int get_Hero_Hp(){
+		return hp;
+	}
+	
+	
 	
 	//히어로 폭 반환
 	public int get_Hero_Width(){
@@ -142,7 +163,7 @@ public class Hero extends JPanel{
 	//오른쪽으로 걸을때 3~4 
 	private int right_Walk=0;
 	private int right_Walk_Delay = 0;
-	private int walk_Image_Temp = 8; //일어나있을때 걷는 모습은 13장 앉았을때는 6장
+	private int walk_Image_Temp = 13; //일어나있을때 걷는 모습은 13장 앉았을때는 6장
 	//오른쪽으로 증가
 	public int set_Right_Walk_Plus(){
 		if(right_Walk_Delay%2==0){

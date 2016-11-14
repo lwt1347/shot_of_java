@@ -156,7 +156,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			
 			//파일 만들기
 			try{
-			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_3.txt"; //1스테이지로 만듬
+			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_4.txt"; //1스테이지로 만듬
 			
 			//파일 객체생성
 			File file = new File(fileName);
