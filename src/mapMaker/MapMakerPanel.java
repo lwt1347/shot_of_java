@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import enemy.Walker;
+import enemy.Walker_Dog;
 import mapData.Block;
 import mapData.Next_Page_Portal;
 
@@ -27,7 +28,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	boolean block_Make = false; //1번 블럭 생성 하기 위한 플래그
 	boolean walker_Make = false; //2번 워커 생성
 	boolean potal_Make = false; //3번 포탈 생성
-	
+	boolean walker_Dog_Make = false; //4번 울프 생성
 	
 	//벽돌에 집어 넣는다.
 	Block block;
@@ -36,6 +37,8 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	//워커 
 	Walker walker;
 	
+	//울프
+	Walker_Dog walker_Dog;
 	
 	//포탈
 	Next_Page_Portal portal;
@@ -43,6 +46,8 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	ArrayList<Block> array_Block;	
 	ArrayList<Walker> array_Walker;
 	
+	//울프 어레이
+	ArrayList<Walker_Dog> array_Walker_Dog;
 	
 	//사각형 swap 변수
 	int temp = 0;
@@ -61,6 +66,9 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 		
 		
 		array_Block = new ArrayList<Block>();
+		
+		//울프
+		array_Walker_Dog = new ArrayList<Walker_Dog>();
 		
 		array_Walker = new ArrayList<Walker>();
 		
@@ -121,6 +129,14 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			g.drawRect(walker.get_enemy_Point().x, walker.get_enemy_Point().y, walker.get_Enemy_Width(), walker.get_Enemy_Height());
 		}
 		
+		
+		//울프 그리기
+		for(int i=0; i<array_Walker_Dog.size(); i++){
+			walker_Dog = (Walker_Dog)array_Walker_Dog.get(i);
+			g.drawRect(walker_Dog.get_enemy_Point().x, walker_Dog.get_enemy_Point().y, walker_Dog.get_Enemy_Width(), walker_Dog.get_Enemy_Height());
+		}
+		
+		
 		//포탈 그리기
 		g.drawRect(portal.get_Left_Top_Point().x, portal.get_Left_Top_Point().y, 30, 50);
 		
@@ -148,6 +164,15 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 				str += walker.get_Left_Bound_Site() + "@" + walker.get_Right_Bound_Site() + "@" + walker.get_Bottom_Bound_Site() + "워커";
 			}
 			
+			str += "울프";
+			//블럭과 워커의 분기는 &로 표기한다.
+			for(int i=0; i<array_Walker_Dog.size(); i++){
+				walker_Dog = (Walker_Dog) array_Walker_Dog.get(i);
+				str += walker_Dog.get_Left_Bound_Site() + "@" + walker_Dog.get_Right_Bound_Site() + "@" + walker_Dog.get_Bottom_Bound_Site() + "울프";
+			}
+			
+			
+			
 			//포탈만들기
 			str += "포탈" + portal.get_Left_Top_Point().x + "@" + (portal.get_Left_Top_Point().y-20);
 			//4@1804@994@84벽임616@1602@270@50벽임워커721@721@1804워커730@730@1603워커포탈50@1700
@@ -156,7 +181,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			
 			//파일 만들기
 			try{
-			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_4.txt"; //1스테이지로 만듬
+			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_5.txt"; //1스테이지로 만듬
 			
 			//파일 객체생성
 			File file = new File(fileName);
@@ -184,20 +209,36 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 				block_Make = true;
 				walker_Make = false;
 				potal_Make = false;
+				walker_Dog_Make = false;
 			break;
 			
+			
+			//워커
 			case KeyEvent.VK_2 : //블럭 생성
 				
 				block_Make = false;
-				walker_Make = true; //워커 생성
+				walker_Make = true; 
 				potal_Make = false;
+				walker_Dog_Make = false;
 			break;
 			
+			//포탈 생성
 			case KeyEvent.VK_3 : //
 				block_Make = false;
-				walker_Make = false; //워커 생성
+				walker_Make = false; 
 				potal_Make = true;
+				walker_Dog_Make = false;
 				break;
+				
+			//울프
+			case KeyEvent.VK_4 :
+				block_Make = false;
+				walker_Make = false; 
+				potal_Make = false;
+				walker_Dog_Make = true;
+				break;
+				
+				
 		}
 		
 		
@@ -376,6 +417,49 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			}
 			
 		}
+		
+		
+		//울프 만들기
+				if(walker_Dog_Make){		//바운딩 범위, 위치, 위치
+					walker_Dog = new Walker_Dog(start_Point.x, start_Point.x, start_Point.y);  //왜 움직이지?
+					//탈출시 포문도 함께 탈출
+					boolean forFlag = false;
+					
+					
+					
+						//안겹쳤을때 워커의 위치를 겹칠때까지 내린다.y 축으로
+						while(true){
+								
+								
+							for(int i=0; i<array_Block.size(); i++){
+							block = (Block) array_Block.get(i);
+									
+							
+							if(block.get_Left_Top_Point().x > walker_Dog.get_enemy_Point().x + walker_Dog.get_Enemy_Width() || 
+								block.get_Left_Top_Point().x + block.get_Widht() <= walker_Dog.get_enemy_Point().x ||
+								block.get_Left_Top_Point().y > walker_Dog.get_enemy_Point().y + walker_Dog.get_Enemy_Height() ||
+								block.get_Left_Top_Point().y + block.get_Height() <= walker_Dog.get_enemy_Point().y){
+								
+								//안겹쳤을때 워커의 위치를 겹칠때까지 내린다.y 축으로
+								walker_Dog.set_Enemy_Point_Y();
+								
+								}else{
+									//walker.init_Bound_Site(block.get_Left_Top_Point().x + 30, block.get_Widht(), walker.get_enemy_Point().y + 70);
+									//아래코드와 같이 해야 블록위에 바로 적군이 생긴다.
+									walker_Dog.init_Bound_Site(start_Point.x, start_Point.x, walker_Dog.get_enemy_Point().y + 70);
+									
+									array_Walker_Dog.add(walker_Dog);
+									//겹칠때 탈출
+									forFlag = true;
+									break;
+								}
+							}
+							if(forFlag){
+								break;
+							}
+					}
+					
+				}
 		
 		
 		

@@ -189,14 +189,16 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 				}
 				
 				//경계 구역 사각형 값 을 증가시킨다. 영웅을 발견했을때 범위를 증가시킨다.
+				/*
 				public void set_Range_Site_Width_Left_Point(int range_Site_Width_Left_Point){
 					this.range_Site_Width_Left_Point = range_Site_Width_Left_Point;
-				}
+				}*/
 				
 				//경계 구역 사각형 값 을 증가시킨다. 영웅을 발견했을때 범위를 증가시킨다.
+				/*
 				public void set_Range_Site_Height_Up_Point(int range_Site_Top_Height){
 					this.range_Site_Height_Top_Point = range_Site_Top_Height;
-				}
+				}*/
 	
 	
 	
@@ -302,6 +304,8 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 			 //3개 값을 입력 경계시작 위치, 종료위치, y 포인트
 			 //init_Bound_Site();
 			
+			 
+			 
 		 }
 	}
 	

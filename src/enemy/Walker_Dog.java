@@ -17,16 +17,16 @@ public class Walker_Dog extends Enemy{
 		
 		//적 영웅 탐지 사각형 범위 지정
 		range_Site_Width_Right_Point = 500;
-		range_Site_Height_Bottom_Point = 60;
+		range_Site_Height_Bottom_Point = 100;
 		
 		//워커 둘레
 		width = 150;
-		height = 120;
+		height = 80;
 		
 		lock_Trans = true;
 		
 		//워커의 기본 생명력 50
-		enemy_HP = 300;
+		enemy_HP = 10;
 		
 	}
 	
@@ -57,35 +57,13 @@ public class Walker_Dog extends Enemy{
 			//몬스터가 히어로 쫒는 것을 종료했을때 탐색 범위를 원위치 시킨다.
 			public void init_Range_Site(){
 				range_Site_Width_Right_Point = 500;
-				range_Site_Height_Bottom_Point = 60;
+				range_Site_Height_Bottom_Point = 100;
 				
 				range_Site_Width_Left_Point = enemy_Point.x;
 				range_Site_Height_Top_Point = enemy_Point.y;
 			}
 			
-				
-						//경계 구역 사각형 좌측 상단 값 반환
-						public int get_Range_Site_Width_Left_Point(){
-							return range_Site_Width_Left_Point;
-						}
-						
-						//경계 구역 사각형 값 리턴
-						public int get_range_Site_Height_Top_Point(){
-							return range_Site_Height_Top_Point;
-						}
-						
-						//경계 구역 사각형 값 을 증가시킨다. 영웅을 발견했을때 범위를 증가시킨다.
-						public void set_Range_Site_Width_Left_Point(int range_Site_Width_Left_Point){
-							this.range_Site_Width_Left_Point = range_Site_Width_Left_Point;
-						}
-						
-						//경계 구역 사각형 값 을 증가시킨다. 영웅을 발견했을때 범위를 증가시킨다.
-						public void set_Range_Site_Height_Top_Point(int range_Site_Top_Height){
-							this.range_Site_Height_Top_Point = range_Site_Top_Height;
-						}
-				
 
-		
 		
 		//경계값 한번만 증가 시키기위한 플래그
 		boolean plusOnce = true;
@@ -179,7 +157,7 @@ public class Walker_Dog extends Enemy{
 					//좌우로 움직일 범위 설정 적군이 영웅을 발견 못했을때 경계 범위를 블럭 전체로 잡는다.
 					if((left_Bound_Site - 10) >= enemy_Point.x){
 						move_Site = false;
-					}else if((right_Bound_Site - 20) <= enemy_Point.x){
+					}else if((right_Bound_Site - 150) <= enemy_Point.x){  //늑대 덩치 때문에
 						move_Site = true;
 					}
 					
@@ -202,7 +180,6 @@ public class Walker_Dog extends Enemy{
 				walk_Image_Temp = 6; //공격모션
 				
 				
-				
 				range_Site_Height_Top_Point = enemy_Point.y-100;	//에서 
 				range_Site_Height_Bottom_Point = 250; //까지 600- 450  500 - 450 enemy_Point.y - 450
 				//System.out.println(range_Site_Height_Bottom_Point);
@@ -218,22 +195,22 @@ public class Walker_Dog extends Enemy{
 				}
 					//이동 속도 증가
 					if(move_Site){	//좌측으로 이동
-						if(hero.get_Hero_X_Point()+30 <= enemy_Point.x){ //좌측으로 캐릭터 보다 전진 하지 못하도록 = 캐릭터를 쫓아 가도록
-						enemy_Point.x -= 10;
+						if(hero.get_Hero_X_Point()+30 <= enemy_Point.x || hero.get_Hero_Y_Point() >= (enemy_Point.y + height)){ //좌측으로 캐릭터 보다 전진 하지 못하도록 = 캐릭터를 쫓아 가도록
+						enemy_Point.x -= 15;
 						}
 					}else {			//우측으로 이동
-						if(hero.get_Hero_X_Point()-30 >= enemy_Point.x){
-						enemy_Point.x += 10;
+						if(hero.get_Hero_X_Point() >= enemy_Point.x + width){ //우측으로 더 못가게함
+						enemy_Point.x += 15;
 						}
 					}
 					
 					//좌우로 움직일 범위 설정 적군의 공격범위에서는 끝까지 따라오도록
 					if((left_Bound_Site) >= enemy_Point.x + 30){
 						//move_Site = false; //오른쪽
-						enemy_Point.x -= 10; //위의 코드로 하면 방향이 바뀐다.
-					}else if((right_Bound_Site) <= enemy_Point.x){
+					//	enemy_Point.x -= 5; //위의 코드로 하면 방향이 바뀐다.
+					}else if((right_Bound_Site) <= enemy_Point.x + width){
 						//move_Site = true;//왼쪽
-						enemy_Point.x += 10;
+					//	enemy_Point.x += 5;
 					}
 					
 				

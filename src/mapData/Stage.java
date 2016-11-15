@@ -7,19 +7,25 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 
+import enemy.Enemy;
 import enemy.Walker;
+import enemy.Walker_Dog;
 
 public class Stage {
 
 	//배열리스트에 블록에 대한 정보를 담는다.
 	ArrayList block_Array;
 
-	//워커 배열
-	ArrayList walker_Array;
+	//적군 배열
+	ArrayList enemy_Array;
 	
 	Block temp_Block; 
 	
+	//워커 탬프
 	Walker temp_Walker;
+	
+	//워커독 탬프
+	Walker_Dog temp_Walker_Dog;
 	
 	//포탈 생성
 	Next_Page_Portal portal;
@@ -43,7 +49,7 @@ public class Stage {
 	temp_Block_Left_Top_Point = new Point(0, 0); //초기화
 	//temp_Block = new Block(temp_Block_Left_Top_Point, 0, 0); //블록 어레이이 넣을 블록
 	
-	walker_Array = new ArrayList<Walker>(); //워커 초기화
+	enemy_Array = new ArrayList<Enemy>(); //워커 초기화
 	
 	//포탈 초기화
 	portal = new Next_Page_Portal(0, 0);
@@ -53,7 +59,7 @@ public class Stage {
 	//메모리 누수 제거
 	public void reset_Memory(){
 		block_Array.clear();
-		walker_Array.clear();
+		enemy_Array.clear();
 	}
 	
 	
@@ -120,10 +126,25 @@ public class Stage {
 			temp_Right_Site = Integer.parseInt(walker_Element[1]);
 			temp_Bottom_Site = Integer.parseInt(walker_Element[2]);
 			temp_Walker = new Walker(temp_Left_Site - 35, temp_Right_Site, temp_Bottom_Site - 70);
-			walker_Array.add(temp_Walker);
+			enemy_Array.add(temp_Walker);
 		}
 		//System.out.println(Map.length);
-		//^359^359^443&724^724^644&222^222^829&793^793^323&826^826^108&
+		
+		//워커독
+		Map = line.split("울프");
+		String[] walker_Dog_Element = null;
+		for(int i=1; i<Map.length-1; i++){
+		//for(int i=1; i<3; i++){	
+			walker_Dog_Element = Map[i].split("@");
+			//System.out.println(walker_Element.length);
+			temp_Left_Site = Integer.parseInt(walker_Dog_Element[0]);
+			temp_Right_Site = Integer.parseInt(walker_Dog_Element[1]);
+			temp_Bottom_Site = Integer.parseInt(walker_Dog_Element[2]);
+			temp_Walker_Dog = new Walker_Dog(temp_Left_Site - 35, temp_Right_Site, temp_Bottom_Site - 70);
+			enemy_Array.add(temp_Walker_Dog);
+		}
+		
+		
 		
 		//포탈 정보는 *로 나눈어서 제일 마지막에 들어간다.
 				Map = line.split("포탈");
@@ -143,8 +164,8 @@ public class Stage {
 	}
 	
 	//생성된 워커를 반환한다.
-	public ArrayList<Walker> get_Walker(){
-		return walker_Array;
+	public ArrayList<Enemy> get_Enemy(){
+		return enemy_Array;
 	}
 	
 	//생성된 포탈 을 반환한다.

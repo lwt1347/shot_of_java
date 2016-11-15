@@ -39,10 +39,10 @@ public class Next_Page_Portal {
 			
 			//포탈 이미지 회전
 			private int portal_Img_Cut=0;
-			private int Portal_Delay = 35;
+			private int Portal_Delay = 9;
 			//오른쪽으로 증가
 			public int set_portal_Img_Cut(){
-				portal_Img_Cut+=3;
+				portal_Img_Cut+=1;
 				
 				if(portal_Img_Cut > Portal_Delay){ //일어 나있을때 앉아있을때 사진의 개수가 다르다.
 					portal_Img_Cut = 1;

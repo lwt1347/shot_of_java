@@ -75,14 +75,16 @@ public class Walker extends Enemy{
 						}
 						
 						//경계 구역 사각형 값 을 증가시킨다. 영웅을 발견했을때 범위를 증가시킨다.
+						/*
 						public void set_Range_Site_Width_Left_Point(int range_Site_Width_Left_Point){
 							this.range_Site_Width_Left_Point = range_Site_Width_Left_Point;
 						}
-						
+						*/
 						//경계 구역 사각형 값 을 증가시킨다. 영웅을 발견했을때 범위를 증가시킨다.
+						/*
 						public void set_Range_Site_Height_Top_Point(int range_Site_Top_Height){
 							this.range_Site_Height_Top_Point = range_Site_Top_Height;
-						}
+						}*/
 				
 
 		
@@ -213,11 +215,11 @@ public class Walker extends Enemy{
 				}
 					//이동 속도 증가
 					if(move_Site){	//좌측으로 이동
-						if(hero.get_Hero_X_Point()+30 <= enemy_Point.x){ //좌측으로 캐릭터 보다 전진 하지 못하도록 = 캐릭터를 쫓아 가도록
+						if(hero.get_Hero_X_Point()+30 <= enemy_Point.x || hero.get_Hero_Y_Point() >= (enemy_Point.y + height)){ //좌측으로 캐릭터 보다 전진 하지 못하도록 = 캐릭터를 쫓아 가도록
 						enemy_Point.x -= 5;
 						}
 					}else {			//우측으로 이동
-						if(hero.get_Hero_X_Point()-30 >= enemy_Point.x){
+						if(hero.get_Hero_X_Point()+3 >= enemy_Point.x + width){
 						enemy_Point.x += 5;
 						}
 					}
@@ -225,10 +227,10 @@ public class Walker extends Enemy{
 					//좌우로 움직일 범위 설정 적군의 공격범위에서는 끝까지 따라오도록
 					if((left_Bound_Site) >= enemy_Point.x + 30){
 						//move_Site = false; //오른쪽
-						enemy_Point.x -= 10; //위의 코드로 하면 방향이 바뀐다.
+						enemy_Point.x -= 3; //위의 코드로 하면 방향이 바뀐다.
 					}else if((right_Bound_Site) <= enemy_Point.x){
 						//move_Site = true;//왼쪽
-						enemy_Point.x += 10;
+						enemy_Point.x += 3;
 					}
 					
 				

@@ -176,7 +176,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		//백그라운드 이미지
-		background_Img = tk.getImage("img/back_Ground/back_Ground_1.png");
+		background_Img = tk.getImage("img/back_Ground/back_Ground_2.png");
 		
 		
 		
@@ -571,7 +571,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			stage_Num++; //다음 스테이지로 넘어감 //현 위치 초기화 1스테이지
 			//System.out.println();
 			//스테이지넘버를 한번 반영해서 스테이지를 만든다.
-			//stage_Num = 4;
+			//stage_Num = 5;
 			stage.map_Stage(stage_Num);
 
 			//기본 적군 워커 생성
@@ -617,8 +617,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					
 					ground_Temp_X+=20; //10범위마다 하나씩 그림
 					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
+						ground_Png = tk.getImage("img/ground/ground_Img_" + (ground_Img_Temp +1)+ ".png");
 						//ground_Png = tk.getImage("img/ground/ground_Img_51.png"); //벽 매무새
-						//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
+						buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
 						break;
 					}
 					ground_Img_Temp++;
@@ -673,6 +674,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		//포탈이미지 그리기
 		portal_Img = tk.getImage("img/portal/portal_" +portal.set_portal_Img_Cut()+ ".png");
+		//portal_Img = tk.getImage("img/portal/portal.png");
 		buffg.drawImage(portal_Img, portal.get_Left_Top_Point().x, portal.get_Left_Top_Point().y, this);
 		//System.out.println(portal.get_Left_Top_Point().y);
 		
@@ -878,8 +880,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 		}else{
 			//System.out.println("적군 땅에 닿아 있음");
-			
-			
+		
 			
 			//닿아 있을때 발판의 위치를 리턴한다, 
 			enemy.get_Enemy_Exit_Yoint(block.get_Left_Top_Point().y  - enemy.get_Enemy_Height() );
@@ -899,18 +900,32 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				block.get_Left_Top_Point().y >= (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
 		
 		}else{
-			//System.out.println("벽에 부딛힘");
+			
 			//벽에 부딛힐떄 방향전환 해주어야하며, 20정도 밀쳐 내야함
 			
+			
+			//몬스터의 방향을 반대로 꺽어야함
+			if(enemy.get_Move_Site()){ 
+				enemy.set_Move_Site(false);
+				enemy.knockback(true); //벽에서 밀처주어야 안끼인다.
+			}else {
+				enemy.set_Move_Site(true);
+				enemy.knockback(false);
+			}
+			
+			
+			
+			/*
 			//몬스터 오른쪽과 벽의 왼쪽 면 set_Move_Site //flag 가 ture 이면 왼쪽으로 전환
 			if((enemy.get_enemy_Point().x+enemy.get_Enemy_Width()) >=  block.get_Left_Top_Point().x){
 				enemy.set_Move_Site(true);
 				//enemy.knockback(false);//넉백으로 한번 밀처낸다.
 			}else { //몬스터 왼쪽과 벽의 오른쪽 면 
+				
 				enemy.set_Move_Site(false);
 				//enemy.knockback(true);//넉백으로 한번 밀처낸다.
 			}
-			
+			*/
 			
 		}
 		
@@ -945,16 +960,17 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 						
 						
 					}else {
-						//System.out.println("충돌 판정");
+						
 						enemy.set_Find_Hero(mainCh.get_Hero_X_Point()); //캐릭터를 찾았을때
 						
 						//캐릭터와 적군이 직접 닿았을때. 좌측방향
-						if((hero.get_Hero_X_Point()) < (enemy.get_enemy_Point().x - enemy.get_Enemy_Width()) || 
-								hero.get_Hero_X_Point() > (enemy.get_enemy_Point().x - enemy.get_Enemy_Width()+enemy.get_Enemy_Width()) ||
+						if((hero.get_Hero_X_Point() + +hero.get_Hero_Width()) < (enemy.get_enemy_Point().x) || 
+								hero.get_Hero_X_Point() > (enemy.get_enemy_Point().x + enemy.get_Enemy_Width()) ||
 								(hero.get_Hero_Y_Point()+hero.get_Hero_Height()) < enemy.get_enemy_Point().y ||
 								hero.get_Hero_Y_Point() > (enemy.get_enemy_Point().y+enemy.get_Enemy_Height())){
 							
 						}else{
+							
 							//좌측방향 넉백
 							if(mainCh.get_Hero_Hp() > 0) //영웅이 살아있어야 넉백
 							hero.left_Knock_Back();
@@ -1062,6 +1078,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					enemy.set_Move_Site(false);
 					//적군 넉백효과
 					enemy.knockback(false);
+				
 				}
 				
 				
@@ -1098,9 +1115,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				enemy.set_Down_Start_True();
 				//추적 알고리즘도 함께 움직야야한다.
-				if(enemy instanceof Walker){ 
-				enemy.init_Range_Site(stage.get_Walker().get(i).get_enemy_Point().x, stage.get_Walker().get(i).get_enemy_Point().y);
-				}
+				//if(enemy instanceof Walker){ 
+				enemy.init_Range_Site(stage.get_Enemy().get(i).get_enemy_Point().x, stage.get_Enemy().get(i).get_enemy_Point().y);
+				//}
 				//System.out.println("a");
 				
 				//에너미가 벽 너머로 밀린다면 삭제
@@ -1120,6 +1137,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				//적군 이미지 적군이 오른쪽으로 이동중일때
 				if(!(enemy).get_Right_Flag()){
+					
+					if(((Walker) enemy).get_Find_Hero()){
+ 						walker_Png = tk.getImage("img/walker_Right_Attack/walker_Right_Attack_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png"); //공격 범위내에 영웅이 있을때
+ 					}else {
+ 						walker_Png = tk.getImage("img/walker_Right_Nomal/walker_Right_Nomal_" + ((Walker) enemy).set_Right_Walk_Plus() + ".png");
+  					}
 					
 					//처맞았을때 피흘리기 시작
 					if(enemy.get_Blood_Event_Flag()){
@@ -1151,24 +1174,31 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 			//워커독 구현
 			if(enemy instanceof Walker_Dog){
-				//워커독 이미지 그리기
-				if(((Walker_Dog) enemy).get_Find_Hero()){//오른쪽 이동중
-					walker_Dog = tk.getImage("img/walker_Dog_Left/walker_Dog_Left_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png");//공격 범위내에 영웅이 있을때
-				}else {
-					walker_Dog = tk.getImage("img/walker_Dog_Left/walker_Dog_Left_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png");
-				}
 				
+				
+				//워커독 이미지 그리기
+				
+				if(!(enemy).get_Right_Flag()){//오른쪽 이동중
+						if(((Walker_Dog) enemy).get_Find_Hero()){
+							walker_Dog = tk.getImage("img/walker_Dog_Right_Attack/walker_Dog_Right_Attack_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png");//공격 범위내에 영웅이 있을때
+						}else {
+							walker_Dog = tk.getImage("img/walker_Dog_Right/walker_Dog_Right_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png");
+						}
+				}
 				//워커 독 이미지 그리기
-				if(((Walker_Dog)enemy).get_Find_Hero()){//왼쪽 이동중
-					//공격범위 내에 영웅 있을때
-					walker_Dog = tk.getImage("img/walker_Dog_Left_Attack/walker_Dog_Left_Attack_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png"); //공격 범위내에 영웅이 있을때
-				}else {
-					walker_Dog = tk.getImage("img/walker_Dog_Left/walker_Dog_Left_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png");
-					System.out.println(((Walker_Dog) enemy).set_Walk_Plus());
+				
+				else{
+						if(((Walker_Dog)enemy).get_Find_Hero()){//왼쪽 이동중
+							//공격범위 내에 영웅 있을때
+							walker_Dog = tk.getImage("img/walker_Dog_Left_Attack/walker_Dog_Left_Attack_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png"); //공격 범위내에 영웅이 있을때
+						}else {
+							walker_Dog = tk.getImage("img/walker_Dog_Left/walker_Dog_Left_" + ((Walker_Dog) enemy).set_Walk_Plus() + ".png");
+						}
 				}
 				
 				buffg.drawRect(enemy.get_enemy_Point().x, enemy.get_enemy_Point().y, enemy.get_Enemy_Width(), enemy.get_Enemy_Height());
-				buffg.drawImage(walker_Dog, enemy.get_enemy_Point().x - 5, enemy.get_enemy_Point().y+8, this); //+8을 하는 이유는 안하면 공중부양함
+				
+				buffg.drawImage(walker_Dog, enemy.get_enemy_Point().x- 20, enemy.get_enemy_Point().y-40, this); //+8을 하는 이유는 안하면 공중부양함
 			}
 			
 			
@@ -1224,7 +1254,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		//생성된 스테이지의 워커를 그려야함
-		for(int i=0; i<stage.get_Walker().size(); i++){
+		for(int i=0; i<stage.get_Enemy().size(); i++){
 			//추가된 워커들을 바로밑의 블록에 안착시킨다.
 			//stage.get_Walker().get(i).set_Down_Start_True();
 			//추적 알고리즘도 같이 떨궈야한다.
@@ -1232,18 +1262,21 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 			//블록과 겹치는 적군이 있다면 블록 위로 올려준다.
 			for(int j=0; j<stage.get_Block().size(); j++){
-				stage.get_Walker().get(i).set_Down_Start_True(); //초기 생성시 맞닿은 벽위에 안착 시키기 위해서
-				crash_Decide_Enemy_Block(stage.get_Block().get(j), stage.get_Walker().get(i));
-				
+				stage.get_Enemy().get(i).set_Down_Start_True(); //초기 생성시 맞닿은 벽위에 안착 시키기 위해서
+			
+				crash_Decide_Enemy_Block(stage.get_Block().get(j), stage.get_Enemy().get(i));
 			}
 			
-			enemy_List.add(stage.get_Walker().get(i));
+			enemy_List.add(stage.get_Enemy().get(i));
 			
 		}
 	
+		
+		
+		
 		//워커 독 넣기
-		Walker_Dog a = new Walker_Dog(640, 640, 1704);
-		enemy_List.add(a);
+		//Walker_Dog a = new Walker_Dog(640, 640, 1604);
+		//enemy_List.add(a);
 		
 	}
 	
