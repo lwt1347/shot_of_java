@@ -289,6 +289,10 @@ public class Enemy extends Thread{ //쓰레드를 상속받아서 적군은 적군 알아서 움직
 		 //떨어지면서 확인을 해야한다.
 		 gSum += g;
 		 enemy_Point.y += gSum;
+		 /* 안착 시키기위한 방법 2 
+		 for(int i =0;i<gSum;i++){
+			 enemy_Point.y ++;			 
+		 }*/
 		 
 		 //다른 발판에 닿았을때 추락을 중지해야 하며 다시금 경계위치를 지정해야한다.
 		 if(End_Y_Point < enemy_Point.y){ //이때 중지

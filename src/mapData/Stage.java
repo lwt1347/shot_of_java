@@ -19,6 +19,9 @@ public class Stage {
 	//적군 배열
 	ArrayList enemy_Array;
 	
+	//톱니바퀴 배열
+	ArrayList Trab_Saw_Tooth_Array;
+	
 	Block temp_Block; 
 	
 	//워커 탬프
@@ -29,6 +32,9 @@ public class Stage {
 	
 	//포탈 생성
 	Next_Page_Portal portal;
+	
+	//톱니바퀴 생성
+	Trab_Saw_Tooth trab_Saw_Tooth;
 	
 	//블록의 좌상단 포인트를 반환하기 위한 임시 변수
 	Point temp_Block_Left_Top_Point;
@@ -53,6 +59,10 @@ public class Stage {
 	
 	//포탈 초기화
 	portal = new Next_Page_Portal(0, 0);
+	
+	//톱니바퀴 초기화
+	trab_Saw_Tooth = new Trab_Saw_Tooth(0, 0);
+	Trab_Saw_Tooth_Array = new ArrayList<Trab_Saw_Tooth>();
 	}
 	
 	
@@ -60,6 +70,7 @@ public class Stage {
 	public void reset_Memory(){
 		block_Array.clear();
 		enemy_Array.clear();
+		Trab_Saw_Tooth_Array.clear();
 	}
 	
 	
@@ -144,11 +155,26 @@ public class Stage {
 			enemy_Array.add(temp_Walker_Dog);
 		}
 		
+		//톱니 생성
+		Map = line.split("톱니");
+		String[] trab_Saw_Tooth_Element = null;
+		for(int i=1; i<Map.length-1; i++){
+		//for(int i=1; i<3; i++){	
+			trab_Saw_Tooth_Element = Map[i].split("@");
+			//System.out.println(walker_Element.length);
+			int x = Integer.parseInt(trab_Saw_Tooth_Element[0]);
+			int y = Integer.parseInt(trab_Saw_Tooth_Element[1]);
+			trab_Saw_Tooth = new Trab_Saw_Tooth(x,y);
+			Trab_Saw_Tooth_Array.add(trab_Saw_Tooth);
+		}
+		
+		
+		
 		
 		
 		//포탈 정보는 *로 나눈어서 제일 마지막에 들어간다.
-				Map = line.split("포탈");
-				String[] portal_Point = null;
+		Map = line.split("포탈");
+		    	String[] portal_Point = null;
 		portal_Point = Map[1].split("@");
 				//마지막으로파싱해서 포탈의 위치를 알려준다
 		portal.set_portal_Point(Integer.parseInt(portal_Point[0]), Integer.parseInt(portal_Point[1]));
@@ -173,7 +199,10 @@ public class Stage {
 		return portal;
 	}
 	
-	
+	//생성된 톱니바퀴를 반환한다.
+	public ArrayList<Trab_Saw_Tooth> get_Trab_Saw_Tooth(){
+		return Trab_Saw_Tooth_Array;
+	}
 	
 	
 	

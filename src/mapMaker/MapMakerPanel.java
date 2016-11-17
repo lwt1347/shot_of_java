@@ -17,6 +17,7 @@ import enemy.Walker;
 import enemy.Walker_Dog;
 import mapData.Block;
 import mapData.Next_Page_Portal;
+import mapData.Trab_Saw_Tooth;
 
 public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionListener, MouseListener{
 
@@ -29,6 +30,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	boolean walker_Make = false; //2번 워커 생성
 	boolean potal_Make = false; //3번 포탈 생성
 	boolean walker_Dog_Make = false; //4번 울프 생성
+	boolean trab_Saw_Tooth_Make = false; //5번 톱니 바퀴 생성
 	
 	//벽돌에 집어 넣는다.
 	Block block;
@@ -43,8 +45,14 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	//포탈
 	Next_Page_Portal portal;
 	
+	//톱니바퀴
+	Trab_Saw_Tooth trab_Saw_Tooth;
+	
 	ArrayList<Block> array_Block;	
 	ArrayList<Walker> array_Walker;
+	
+	//톱니 배열
+	ArrayList<Trab_Saw_Tooth> array_Trab_Saw_Tooth;
 	
 	//울프 어레이
 	ArrayList<Walker_Dog> array_Walker_Dog;
@@ -71,6 +79,10 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 		array_Walker_Dog = new ArrayList<Walker_Dog>();
 		
 		array_Walker = new ArrayList<Walker>();
+		
+		//톱니
+		array_Trab_Saw_Tooth = new ArrayList<Trab_Saw_Tooth>();
+		
 		
 		portal = new Next_Page_Portal(0, 0);
 		
@@ -129,6 +141,16 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			g.drawRect(walker.get_enemy_Point().x, walker.get_enemy_Point().y, walker.get_Enemy_Width(), walker.get_Enemy_Height());
 		}
 		
+		//톱니 그리기
+		for(int i=0; i<array_Trab_Saw_Tooth.size(); i++){
+			trab_Saw_Tooth = array_Trab_Saw_Tooth.get(i);
+			g.drawOval(trab_Saw_Tooth.Get_Trab_Saw_tooth_Point().x - trab_Saw_Tooth.get_Radius() ,
+					trab_Saw_Tooth.Get_Trab_Saw_tooth_Point().y - trab_Saw_Tooth.get_Radius(),
+					trab_Saw_Tooth.get_Radius() * 2,
+					trab_Saw_Tooth.get_Radius() * 2);
+			System.out.println("a");
+		}
+		
 		
 		//울프 그리기
 		for(int i=0; i<array_Walker_Dog.size(); i++){
@@ -147,6 +169,11 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 	@Override
 	public void keyPressed(KeyEvent e) {
 		switch(e.getKeyCode()){
+		
+		
+		
+		
+		
 		case KeyEvent.VK_ENTER :
 			
 			//블럭의 좌표를 @로 나늬어 구분하고 줄 바꿈을 #으로 구분한다.
@@ -171,6 +198,13 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 				str += walker_Dog.get_Left_Bound_Site() + "@" + walker_Dog.get_Right_Bound_Site() + "@" + walker_Dog.get_Bottom_Bound_Site() + "울프";
 			}
 			
+			//톱니 만들기
+			str += "톱니";
+			//블럭과 워커의 분기는 &로 표기한다.
+			for(int i=0; i<array_Trab_Saw_Tooth.size(); i++){
+				trab_Saw_Tooth = array_Trab_Saw_Tooth.get(i);
+				str += trab_Saw_Tooth.Get_Trab_Saw_tooth_Point().x + "@" + trab_Saw_Tooth.Get_Trab_Saw_tooth_Point().y + "톱니";
+			}
 			
 			
 			//포탈만들기
@@ -181,7 +215,7 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			
 			//파일 만들기
 			try{
-			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_5.txt"; //1스테이지로 만듬
+			String fileName = "C:\\Users\\USER\\workspace\\Shot\\bin\\mapData\\stage_7.txt"; //1스테이지로 만듬
 			
 			//파일 객체생성
 			File file = new File(fileName);
@@ -203,48 +237,49 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 			System.out.println("파일로 저장 되었습니다.");
 			break;
 			
+			
+			
 			//1번 = 블럭 생성 2번 = 적군 워커 생성 //범위 포인터 중복시 삭제
 			case KeyEvent.VK_1 : //블럭 생성
-				
+				init();
 				block_Make = true;
-				walker_Make = false;
-				potal_Make = false;
-				walker_Dog_Make = false;
 			break;
 			
 			
 			//워커
 			case KeyEvent.VK_2 : //블럭 생성
-				
-				block_Make = false;
+				init();
 				walker_Make = true; 
-				potal_Make = false;
-				walker_Dog_Make = false;
 			break;
 			
 			//포탈 생성
 			case KeyEvent.VK_3 : //
-				block_Make = false;
-				walker_Make = false; 
+				init();
 				potal_Make = true;
-				walker_Dog_Make = false;
 				break;
 				
 			//울프
 			case KeyEvent.VK_4 :
-				block_Make = false;
-				walker_Make = false; 
-				potal_Make = false;
+				init();
 				walker_Dog_Make = true;
 				break;
-				
+
+			//톱니바퀴
+			case KeyEvent.VK_5 :
+				init();
+				trab_Saw_Tooth_Make = true;
+				break;
 				
 		}
-		
-		
-		
-		
-		
+			
+	}
+	
+	public void init(){
+		block_Make = false;
+		walker_Make = false; 
+		potal_Make = false;
+		walker_Dog_Make = false;
+		trab_Saw_Tooth_Make = false;
 	}
 
 	@Override
@@ -459,6 +494,12 @@ public class MapMakerPanel extends JPanel implements KeyListener, MouseMotionLis
 							}
 					}
 					
+				}
+				
+				//톱니바퀴 만들기
+				if(trab_Saw_Tooth_Make){
+					trab_Saw_Tooth = new Trab_Saw_Tooth(start_Point.x, start_Point.y);
+					array_Trab_Saw_Tooth.add(trab_Saw_Tooth);
 				}
 		
 		

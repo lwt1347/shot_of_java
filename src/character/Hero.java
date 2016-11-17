@@ -239,7 +239,9 @@ public class Hero extends JPanel{
 				 gSum += g;
 				 y_Point += gSum;
 			 }
-			 
+			 hero_Height = 35; //점프중일때는 다리를 올리기 때문에 크기가 10 줄어든다.
+		}else{
+			hero_Height = 45; //점프중이 아닐때는 다리가 펴져 있기 때문에 크기가 원래대로 돌아온다.
 		}
 	}
 	

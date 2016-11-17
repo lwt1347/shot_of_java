@@ -24,6 +24,7 @@ import enemy.Walker_Dog;
 import mapData.Block;
 import mapData.Next_Page_Portal;
 import mapData.Stage;
+import mapData.Trab_Saw_Tooth;
 import weapon.Pistol;
 import weapon.Weapon;
 
@@ -144,6 +145,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	//다수의 적군을 담을 어레이 리스트
 	ArrayList enemy_List = new ArrayList<Enemy>();
 	
+	//함정: 톱니바퀴
+	ArrayList trab_Saw_Tooth_List = new ArrayList<Trab_Saw_Tooth>();
+	
 	
 	
 	public MainPanel() {
@@ -176,8 +180,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		//백그라운드 이미지
-		background_Img = tk.getImage("img/back_Ground/back_Ground_2.png");
-		
+		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_1.png");
 		
 		
 		
@@ -253,6 +256,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		enemy_List.clear(); //현재 생성된 적군을 다 제거하고 새롭게 생성한다.
 		enemy_Process(); 	//적군 생성 루틴
 		
+		System.out.println(bullet_List.size());
+		
 	}
 	
 	
@@ -265,8 +270,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//버퍼의 그래픽 객체 얻기
 		buffg = buffImage.getGraphics();
 		
+		
+		buffg.setColor(Color.gray);
+		buffg.fillRect(0, 0, width, height);
+		
 		//배그라운드 이미지
-		buffg.drawImage(background_Img, 0, 500, this);
+		buffg.drawImage(background_Img, 0, 1000, this);
 		
 		if(Image_Init_Flag){
 		Image_Init(); //이미지 버퍼링
@@ -571,14 +580,13 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			stage_Num++; //다음 스테이지로 넘어감 //현 위치 초기화 1스테이지
 			//System.out.println();
 			//스테이지넘버를 한번 반영해서 스테이지를 만든다.
-			//stage_Num = 5;
+			//stage_Num = 1;
 			stage.map_Stage(stage_Num);
 
 			//기본 적군 워커 생성
 			enemy_Process();
 			
 			end_Stage = false;
-			
 		}
 		
 		//생성된 스테이지의 블록을 그려야함 
@@ -593,8 +601,33 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		
+		//스테이지 마다 그리기 -> if(end_Stage) 안쪽으로 넣어도됨
+		//1스테이지
+		if(stage_Num == 1){
+		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_1.png");  //배경 그리기
+		ground_Png = tk.getImage("img/ground/stage/stage_1.png"); //바닥 그리기
+		buffg.drawImage(ground_Png, 0, 1785, this);
+		}
+		//2스테이지
+		if(stage_Num == 2){
+		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_2.png"); //배경 그리기
+		ground_Png = tk.getImage("img/ground/stage/stage_2.png"); //바닥 그리기
+		buffg.drawImage(ground_Png, 0, 1485, this);
+		}
+		//3스테이지
+		if(stage_Num == 3){
+		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_2.png"); //배경 그리기
+		ground_Png = tk.getImage("img/ground/stage/stage_1.png"); //바닥 그리기
+		buffg.drawImage(ground_Png, 0, 1785, this);
+		}
 		
 		
+		//6스테이지
+		if(stage_Num == 6){
+			
+			ground_Png = tk.getImage("img/ground/stage/stage_1.png"); //바닥 그리기
+			buffg.drawImage(ground_Png, 0, 1785, this);
+		}
 		
 		for(int i=0; i<stage.get_Block().size(); i++){
 			
@@ -603,23 +636,19 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 			//생성된 맵의 x측 길이를 통해 그라운드 이미지가 몇개 들어갈것인지 그린다.
 			ground_Temp_X = stage.get_Block().get(i).get_Left_Top_Point().x;
-			while(true){
-				
-				
-				
-				
-				
-				
+			
+			
+			while(true){ //바닥 그리기
 				//높이가 높은 벽일때
 				if(stage.get_Block().get(i).get_Height() > 60){
 					ground_Png = tk.getImage("img/ground/ground_Img_" + ground_Img_Temp + ".png");
-					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
+					//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
 					
 					ground_Temp_X+=20; //10범위마다 하나씩 그림
 					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
 						ground_Png = tk.getImage("img/ground/ground_Img_" + (ground_Img_Temp +1)+ ".png");
 						//ground_Png = tk.getImage("img/ground/ground_Img_51.png"); //벽 매무새
-						buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
+						//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
 						break;
 					}
 					ground_Img_Temp++;
@@ -628,7 +657,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}
 				}else{ //높이가 낮은 벽일때
 					ground_Png = tk.getImage("img/ground_Img/ground_Img2_" + ground_Img_Temp + ".png");
-					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
+					//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
 					
 					ground_Temp_X+=10; //10범위마다 하나씩 그림
 					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
@@ -641,18 +670,15 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 						ground_Img_Temp = 1;
 					}
 				}
-				
-				
-				
 				 //fillRect
 				//buffg.fillRect(stage.get_Block().get(i).get_Left_Top_Point().x,
 					//	stage.get_Block().get(i).get_Left_Top_Point().y,
 						//stage.get_Block().get(i).get_Widht(), 
 						//stage.get_Block().get(i).get_Height());
-				
 			}
 			
-		
+			
+			
 			//충돌 함수 호출 1이면 벽과 캐릭터
 			crash_Decide_Block(mainCh, stage.get_Block().get(i));
 		
@@ -664,10 +690,23 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			if(temp == stage.get_Block().size()){
 				mainCh.auto_Jump_Down();
 			}
-		
+		//5@1811@973@77벽임워커포탈904@1741
 		}
 		
-	
+		
+		//톱니 바퀴 그리기
+		for(int i=0; i<stage.get_Trab_Saw_Tooth().size(); i++){
+			//톱니 바퀴 생성위치
+			buffg.drawOval(stage.get_Trab_Saw_Tooth().get(i).Get_Trab_Saw_tooth_Point().x - stage.get_Trab_Saw_Tooth().get(i).get_Radius() ,
+					stage.get_Trab_Saw_Tooth().get(i).Get_Trab_Saw_tooth_Point().y - stage.get_Trab_Saw_Tooth().get(i).get_Radius(),
+					stage.get_Trab_Saw_Tooth().get(i).get_Radius() * 2,
+					stage.get_Trab_Saw_Tooth().get(i).get_Radius() * 2);
+		
+			//톱니와 캐릭터 충돌판정
+			crash_Decide_Hero_Saw_Tooth(mainCh, stage.get_Trab_Saw_Tooth().get(i));
+		}
+		
+		
 		
 		//문생성 스테이지 생성할때 받아와야한다.
 		portal = stage.get_Next_Page_Portal();
@@ -682,6 +721,27 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		crash_Decide_Block(mainCh, portal);
 		
 	}
+	
+	//톱니 캐릭터 충돌 판정
+	int rect_Left_Boundary;
+	int rect_Right_Boundary;
+	int rect_Top_Boundary;
+	int rect_Bottom_Boundary;
+	public void crash_Decide_Hero_Saw_Tooth(Hero hero, Trab_Saw_Tooth trab_Saw_Tooth){
+		//원 하고 사각형 충돌 판정 = 원의 반지름을 사각형의 좌우상하 에 더해서 원의 가운데 포인트가 접하는지 하지 않는지 체크한다.
+		rect_Left_Boundary = hero.get_Hero_X_Point() - trab_Saw_Tooth.get_Radius();
+		rect_Right_Boundary = hero.get_Hero_X_Point() + hero.get_Hero_Width() + trab_Saw_Tooth.get_Radius() - 10;
+		rect_Top_Boundary = hero.get_Hero_Y_Point() - trab_Saw_Tooth.get_Radius();
+		rect_Bottom_Boundary = hero.get_Hero_Y_Point() + hero.get_Hero_Height() + trab_Saw_Tooth.get_Radius();
+		
+		if(trab_Saw_Tooth.Get_Trab_Saw_tooth_Point().x >= rect_Left_Boundary && trab_Saw_Tooth.Get_Trab_Saw_tooth_Point().x <= rect_Right_Boundary &&
+				trab_Saw_Tooth.Get_Trab_Saw_tooth_Point().y >= rect_Top_Boundary && trab_Saw_Tooth.Get_Trab_Saw_tooth_Point().y <= rect_Bottom_Boundary){
+			System.out.println("원하고 겹침");
+		}
+		
+		
+	}
+	
 	
 	//오른쪽으로 쏠때 약간더 오른쪽에서 공격해야함
 	int bullet_Plus_Temp = 35;
@@ -1270,15 +1330,15 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			enemy_List.add(stage.get_Enemy().get(i));
 			
 		}
-	
-		
-		
-		
 		//워커 독 넣기
 		//Walker_Dog a = new Walker_Dog(640, 640, 1604);
 		//enemy_List.add(a);
 		
 	}
+	
+	
+	
+	
 	
 	//총알을 발사중인가 아닌가 총알을 생성하는 함수
 	public void bullet_Process(){
@@ -1570,6 +1630,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			}catch(Exception e1){
 				
 			}
+			}
+			
 			}*/
 			
 			
