@@ -342,6 +342,7 @@ public class Hero extends JPanel{
 		
 		if(jump_Time_Schedule >= 15){	
 			if(!jump_Hero){ //점프중일때는 점프가 불가능함
+			
 			jump_Hero = true;
 			//점프 스케줄 초기화
 			jump_Time_Schedule = 0;
@@ -385,9 +386,11 @@ public class Hero extends JPanel{
 	public void set_Hero_Sit(){ //주인공 앉기
 		if(set_Hero_Sit_Stand){
 		hero_Height = 25;
-		y_Point += 20;
+		y_Point += 15;  //15이상하게되면 점프후 착지 앉기 점프를 하면 땅으로 꺼진다.
 		set_Hero_Sit_Stand = false;
+		//if(!jump_Hero){ //점프 중이 아닐때
 		hero_Speed = 2; //영웅 이속 변경
+		//}
 		walk_Image_Temp = 6; //앉아있을때 사진 6장
 		}
 	}

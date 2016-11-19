@@ -19,6 +19,28 @@ public class Trab_Saw_Tooth {
 		radius = 30;
 	}
 	
+	
+	
+	int rotation = 1;
+	int rotation_Delay = 1;
+	//회전하는 이미지 출력
+	public int set_Rotation(){
+		
+		if(rotation_Delay%2 == 0){
+			rotation++;
+			rotation_Delay = 0;
+		}
+		rotation_Delay++;
+		if(rotation >= 5){
+			rotation = 1;
+		}
+		
+		return rotation;
+	}
+	
+	
+	
+
 	//좌표 출력
 	public Point Get_Trab_Saw_tooth_Point(){
 		return saw_Tooth_Point;

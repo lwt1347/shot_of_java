@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 
 import character.Hero;
 import enemy.Enemy;
+import enemy.Stage_1_Boss;
 import enemy.Walker;
 import enemy.Walker_Dog;
 import mapData.Block;
@@ -63,7 +64,6 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	Image walker_Dog;
 	
-	
 	//무기이미지
 	Image weapon_Png;
 	
@@ -85,8 +85,17 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	//포탈 이미지
 	Image portal_Img;
 	
+	//톱니 이미지
+	Image saw_Tooth_Img;
+	
 	//좌상단에 뜰 무기 이미지
 	Image now_Weapone;
+	
+	//1스테이지 보스 이미지
+	Image stage_1Boss_Img;
+	
+	//1스테이지 보스 레이저 공격 이미지
+	Image boss_Attac_Raser;
 	
 	
 	//더블 버퍼링용 이미지
@@ -134,6 +143,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	Clip clip;
 	File sound = new File("sound/pistol/pistol_1.wav");
 	
+	//1판 보스
+	Stage_1_Boss stage_1_Boss;
 	
 	//공격 기본생성자
 	Weapon weapon; 
@@ -181,7 +192,6 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		//백그라운드 이미지
 		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_1.png");
-		
 		
 		
 		
@@ -367,7 +377,11 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 						hero_Png = tk.getImage("img/Hero_Move_Right_Down/hero_Move_Right_1.png");
 					}
 					//System.out.println(mainCh.get_View_Temp_Int_Plus()); //1 - 2 - 3 - 4 
-					
+					//점프중일때 오른쪽 점프 이미지
+					if(mainCh.get_Jump_Hero()){
+						//오른쪽으로 점프중일때
+						hero_Png = tk.getImage("img/hero_Jump_Right.png"); //
+					}
 					
 					Hero_View_Png = tk.getImage("img/Hero_View_Right/Hero_View_Right_" + mainCh.get_View_Temp_Int_Plus() + ".png");
 					//buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1050,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전
@@ -380,6 +394,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 						hero_Png = tk.getImage("img/Hero_Move_Left_Down/hero_Move_Left_1.png");
 					}
 					//System.out.println(mainCh.get_View_Temp_Int_Minus()); //4 - 3 - 2 - 1
+					
+					//점프중일때 왼쪽 점프 이미지
+					if(mainCh.get_Jump_Hero()){
+						//오른쪽으로 점프중일때
+						hero_Png = tk.getImage("img/hero_Jump_Left.png"); //
+					}
 					
 					Hero_View_Png = tk.getImage("img/Hero_View_Left/Hero_View_Left_" + mainCh.get_View_Temp_Int_Minus() + ".png");
 					//buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1500,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전	
@@ -572,6 +592,24 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	//땅이미지 변경해줌
 	int ground_Img_Temp = 1;
 	
+	
+	//배경 움직임
+	int background_Rotation = 1;
+	int background_Rotation_Delay = 1;
+	public int background_Move(){
+		
+		if(background_Rotation_Delay % 20 == 0){
+		background_Rotation++;
+		background_Rotation_Delay = 0;
+		}
+		if(background_Rotation >= 6){
+			background_Rotation = 1;
+		}
+		background_Rotation_Delay++;
+		return background_Rotation;
+	}
+	
+	
 	//스테이지 맵 을 그림 (블록)
 	public void draw_Stage(){
 		
@@ -587,6 +625,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			enemy_Process();
 			
 			end_Stage = false;
+			
+			//1판 일때 1스테이지 보스 생성
+			if(stage_Num == 1){
+				stage_1_Boss = new Stage_1_Boss();
+			}
+			
 		}
 		
 		//생성된 스테이지의 블록을 그려야함 
@@ -604,7 +648,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//스테이지 마다 그리기 -> if(end_Stage) 안쪽으로 넣어도됨
 		//1스테이지
 		if(stage_Num == 1){
-		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_1.png");  //배경 그리기
+			
+			
+		//background_Img = tk.getImage("img/back_Ground/stage1/back_Ground_Stage_1_"+ background_Move() +".png");  //배경 그리기
+			background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_1.png"); //배경 그리기
 		ground_Png = tk.getImage("img/ground/stage/stage_1.png"); //바닥 그리기
 		buffg.drawImage(ground_Png, 0, 1785, this);
 		}
@@ -614,6 +661,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		ground_Png = tk.getImage("img/ground/stage/stage_2.png"); //바닥 그리기
 		buffg.drawImage(ground_Png, 0, 1485, this);
 		}
+		
 		//3스테이지
 		if(stage_Num == 3){
 		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_2.png"); //배경 그리기
@@ -642,13 +690,13 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				//높이가 높은 벽일때
 				if(stage.get_Block().get(i).get_Height() > 60){
 					ground_Png = tk.getImage("img/ground/ground_Img_" + ground_Img_Temp + ".png");
-					//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
+					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
 					
 					ground_Temp_X+=20; //10범위마다 하나씩 그림
 					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
 						ground_Png = tk.getImage("img/ground/ground_Img_" + (ground_Img_Temp +1)+ ".png");
 						//ground_Png = tk.getImage("img/ground/ground_Img_51.png"); //벽 매무새
-						//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
+						buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
 						break;
 					}
 					ground_Img_Temp++;
@@ -657,7 +705,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}
 				}else{ //높이가 낮은 벽일때
 					ground_Png = tk.getImage("img/ground_Img/ground_Img2_" + ground_Img_Temp + ".png");
-					//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
+					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
 					
 					ground_Temp_X+=10; //10범위마다 하나씩 그림
 					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
@@ -701,7 +749,13 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					stage.get_Trab_Saw_Tooth().get(i).Get_Trab_Saw_tooth_Point().y - stage.get_Trab_Saw_Tooth().get(i).get_Radius(),
 					stage.get_Trab_Saw_Tooth().get(i).get_Radius() * 2,
 					stage.get_Trab_Saw_Tooth().get(i).get_Radius() * 2);
-		
+			
+			saw_Tooth_Img = tk.getImage("img/back_Ground/saw_Tooth/saw_Tooth_" + stage.get_Trab_Saw_Tooth().get(i).set_Rotation() + ".png");
+			buffg.drawImage(saw_Tooth_Img, stage.get_Trab_Saw_Tooth().get(i).Get_Trab_Saw_tooth_Point().x - stage.get_Trab_Saw_Tooth().get(i).get_Radius() + 4,
+					stage.get_Trab_Saw_Tooth().get(i).Get_Trab_Saw_tooth_Point().y - stage.get_Trab_Saw_Tooth().get(i).get_Radius()+2, this);
+			
+			
+			
 			//톱니와 캐릭터 충돌판정
 			crash_Decide_Hero_Saw_Tooth(mainCh, stage.get_Trab_Saw_Tooth().get(i));
 		}
@@ -776,13 +830,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			}
 			
 			//총알과 적군의 충돌판정 함수 호출 
-			
 			for(int j=0; j<enemy_List.size(); j++){
 			enemy = (Enemy) enemy_List.get(j);
 			crash_Decide_Enemy(weapon, enemy, enemy.get_Move_Site());
-			
-			
-			
 			}
 			
 			//땅하고 적군하고 충돌판정 땅에 떨어지고있을때만 하면 되긴 한다.
@@ -911,6 +961,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					//-20은 캐릭터의 위치와 발판의 위치에의해 변경될수 있다. 이쪽 코드는 캐릭터가 앉은 상태에서 일어나지 못하도록 함
 					//앉기 기능
 					mainCh.set_Hero_Sit();
+					
 				}
 				else {
 					block.set_Contect_F();//캐릭터가 땅을 밝지 않으면 false 벽을 밝고 있지 않을때는 옛沮層돈 
@@ -1299,6 +1350,63 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			enemy.set_Hero_Information(mainCh);
 			
 		}
+		
+		
+		//보스 그리기 1판 보스가 존재한다면.
+		if(stage_1_Boss != null){
+			stage_1_Boss.set_Hero_Point(mainCh.get_Hero_X_Point(), mainCh.get_Hero_Y_Point()); //영웅 위치 정보를 보낸다.
+			buffg.drawRect(stage_1_Boss.get_Boss_Point().x, stage_1_Boss.get_Boss_Point().y, stage_1_Boss.get_Boss_Width(), stage_1_Boss.get_Boss_Height());
+			
+			if(!stage_1_Boss.get_Boss_Move_Direction()){
+			stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/boss_Right_" + stage_1_Boss.set_Image_Rotation() + ".png");
+			}else {
+				stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/boss_Left_" + stage_1_Boss.set_Image_Rotation() + ".png");
+			}
+			
+			if(stage_1_Boss.get_Boss_Move_Direction() && stage_1_Boss.get_Boss_pattern() == 2)  //2번 패턴 오른쪽으로 돌진할때.
+			{
+				stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/pattern_2/boss_Right_Move_" + stage_1_Boss.set_Image_Rotation_Pattern_2() + ".png");
+			}else if(!stage_1_Boss.get_Boss_Move_Direction() && stage_1_Boss.get_Boss_pattern() == 2){
+				stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/pattern_2/boss_Left_Move_" + stage_1_Boss.set_Image_Rotation_Pattern_2() + ".png");
+			}
+			
+			buffg.drawImage(stage_1Boss_Img, stage_1_Boss.get_Boss_Point().x, stage_1_Boss.get_Boss_Point().y, this);
+			
+			//보스 3번 패턴공격 레이저 공격
+			if(stage_1_Boss.get_Boss_1_Patter3().get_Magic_Direct() == 1 && stage_1_Boss.get_Boss_pattern() == 3){ //오른쪽 공격
+				
+				if(stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() == 0){ //레이저 스탠바이 이미지
+					boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Standby.png");
+				}else{
+					boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Right_" + stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() + ".png");
+				}
+				buffg.drawImage(boss_Attac_Raser, stage_1_Boss.get_Boss_Point().x + stage_1_Boss.get_Boss_Width(), stage_1_Boss.get_Boss_Point().y + 25, this);
+				System.out.println("오른쪽 공격");
+				
+				System.out.println(stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3());
+				
+			}else if(stage_1_Boss.get_Boss_1_Patter3().get_Magic_Direct() == 2 && stage_1_Boss.get_Boss_pattern() == 3){ //왼쪽 공격
+				
+				
+				if(stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() == 0){ //레이저 스탠바이 이미지
+					boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Standby.png");
+				}else{
+				boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Left_" + stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() + ".png");
+				}
+				
+				
+				
+				
+				buffg.drawImage(boss_Attac_Raser, stage_1_Boss.get_Boss_Point().x - 1080 + stage_1_Boss.get_Boss_Width(), stage_1_Boss.get_Boss_Point().y + 25, this);
+				System.out.println("왼쪽 공격");
+				
+			}
+			
+			
+		}
+		
+		
+		
 	}
 	
 	
