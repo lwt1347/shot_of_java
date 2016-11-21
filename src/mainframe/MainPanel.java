@@ -13,13 +13,13 @@ import java.util.ArrayList;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import boss.Boss;
+import boss.Stage_1_Boss;
+import boss.Stage_1_Boss.Pattern_3;
 import character.Hero;
 import enemy.Enemy;
-import enemy.Stage_1_Boss;
 import enemy.Walker;
 import enemy.Walker_Dog;
 import mapData.Block;
@@ -97,6 +97,11 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	//1스테이지 보스 레이저 공격 이미지
 	Image boss_Attac_Raser;
 	
+	//1스테이지 보스 번개 공격
+	Image boss_Attac_Lightning;
+	
+	//보스 HP
+	Image boss_HP;
 	
 	//더블 버퍼링용 이미지
 	Image buffImage;
@@ -143,12 +148,18 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	Clip clip;
 	File sound = new File("sound/pistol/pistol_1.wav");
 	
+	//보스
+	Boss boss;
+	
 	//1판 보스
 	Stage_1_Boss stage_1_Boss;
 	
 	//공격 기본생성자
 	Weapon weapon; 
 	Point pistol_Point;
+	
+	//다수의 보스
+	ArrayList boss_List = new ArrayList<Boss>();
 	
 	//다수의 권총(알)을 담을 어레이 리스트
 	ArrayList bullet_List = new ArrayList<Weapon>(); 
@@ -250,6 +261,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		bullet_List.clear();
 		enemy_List.clear();
 		stage.reset_Memory();
+		boss_List.clear();
 		
 		//이미지 버퍼링용
 		Image_Init_Flag = true;
@@ -265,6 +277,19 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		stage.stage_Num(stage_Num); //현재 스테이지를 재성성한다.
 		enemy_List.clear(); //현재 생성된 적군을 다 제거하고 새롭게 생성한다.
 		enemy_Process(); 	//적군 생성 루틴
+		
+		
+		
+		
+		
+		//1판 일때 1스테이지 보스 생성
+		if(stage_Num == 1){
+			boss = new Boss();
+			System.out.println("a");
+			stage_1_Boss = new Stage_1_Boss();
+			boss_List.add(stage_1_Boss); //보스 리스트
+			
+		}
 		
 		System.out.println(bullet_List.size());
 		
@@ -615,6 +640,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		//다음 스테이지로 넘어감
 		if(end_Stage){
+			
+			
+			
 			stage_Num++; //다음 스테이지로 넘어감 //현 위치 초기화 1스테이지
 			//System.out.println();
 			//스테이지넘버를 한번 반영해서 스테이지를 만든다.
@@ -626,12 +654,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 			end_Stage = false;
 			
-			//1판 일때 1스테이지 보스 생성
-			if(stage_Num == 1){
-				stage_1_Boss = new Stage_1_Boss();
-			}
-			
 		}
+		
+		
 		
 		//생성된 스테이지의 블록을 그려야함 
 		int temp = 0;
@@ -834,6 +859,13 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			enemy = (Enemy) enemy_List.get(j);
 			crash_Decide_Enemy(weapon, enemy, enemy.get_Move_Site());
 			}
+			
+			//총알과 보스의 충돌판정 함수 호출
+			for(int j=0; j<boss_List.size(); j++){
+				boss = (Boss) boss_List.get(j);
+				crash_Weapone_Boss(weapon, boss);
+			}
+			
 			
 			//땅하고 적군하고 충돌판정 땅에 떨어지고있을때만 하면 되긴 한다.
 			for(int j=0; j< stage.get_Block().size(); j++ ){			
@@ -1352,63 +1384,177 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		}
 		
 		
-		//보스 그리기 1판 보스가 존재한다면.
-		if(stage_1_Boss != null){
-			stage_1_Boss.set_Hero_Point(mainCh.get_Hero_X_Point(), mainCh.get_Hero_Y_Point()); //영웅 위치 정보를 보낸다.
-			buffg.drawRect(stage_1_Boss.get_Boss_Point().x, stage_1_Boss.get_Boss_Point().y, stage_1_Boss.get_Boss_Width(), stage_1_Boss.get_Boss_Height());
+		
+		
+		draw_Boss();
+		
+	}
+	
+	//보스와 캐릭터 충돌판정
+	public void crash_Hero_Boss(Hero hero, Boss boss){
+		
+		if((hero.get_Hero_X_Point()+hero.get_Hero_Width()) < (boss.get_Boss_Point().x) || 
+				hero.get_Hero_X_Point() > (boss.get_Boss_Point().getX() + boss.get_Boss_Width()) ||
+				(hero.get_Hero_Y_Point()+hero.get_Hero_Height()) < boss.get_Boss_Point().y ||
+				hero.get_Hero_Y_Point() > (boss.get_Boss_Point().y+ boss.get_Boss_Height())){
 			
-			if(!stage_1_Boss.get_Boss_Move_Direction()){
-			stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/boss_Right_" + stage_1_Boss.set_Image_Rotation() + ".png");
+		}else {
+			System.out.println("보스 충돌");
+		}
+	}
+	
+	//보스와 캐릭터의 총알 충돌 판정
+	public void crash_Weapone_Boss(Weapon weapon, Boss boss){
+
+		if((weapon.getPoint().x+weapon.get_Weapon_Width()) < (boss.get_Boss_Point().x) || 
+				weapon.getPoint().x > (boss.get_Boss_Point().x + boss.get_Boss_Width()) ||
+				(weapon.getPoint().y+weapon.get_Weapon_Height()) < boss.get_Boss_Point().y ||
+				weapon.getPoint().y > (boss.get_Boss_Point().y+ boss.get_Boss_Height())){
+			
+		}else {
+			
+			
+			//여기에서 머리, 몸통 다리 구분해서 대미지입힌다.
+			
+			//머리에 맞는지 확인한다.   //0=x 좌표, 1=y 좌표, 2=넓이, 3=높이
+			if((weapon.getPoint().x+weapon.get_Weapon_Width()) < (boss.get_Head_Info()[0]) || 
+					weapon.getPoint().x > (boss.get_Head_Info()[0] + boss.get_Head_Info()[2]) ||
+					(weapon.getPoint().y+weapon.get_Weapon_Height()) < boss.get_Head_Info()[1] ||
+					weapon.getPoint().y > (boss.get_Head_Info()[1]+ boss.get_Head_Info()[3])){
+				
+				
+				//몸통 타격
+				if((weapon.getPoint().x+weapon.get_Weapon_Width()) < (boss.get_Body_Info()[0]) || 
+						weapon.getPoint().x > (boss.get_Body_Info()[0] + boss.get_Body_Info()[2]) ||
+						(weapon.getPoint().y+weapon.get_Weapon_Height()) < boss.get_Body_Info()[1] ||
+						weapon.getPoint().y > (boss.get_Body_Info()[1]+ boss.get_Body_Info()[3])){
+					
+					//몸통 타격
+					if((weapon.getPoint().x+weapon.get_Weapon_Width()) < (boss.get_Leg_Info()[0]) || 
+							weapon.getPoint().x > (boss.get_Leg_Info()[0] + boss.get_Leg_Info()[2]) ||
+							(weapon.getPoint().y+weapon.get_Weapon_Height()) < boss.get_Leg_Info()[1] ||
+							weapon.getPoint().y > (boss.get_Leg_Info()[1]+ boss.get_Leg_Info()[3])){
+						
+					}else {
+						System.out.println("보스 다리 타격");
+						weapon.set_Remove_Bullet_Choice();
+						boss.set_Hp_Minus_Head();
+					}
+					
+					
+					
+				}else{
+					System.out.println("보스 몸통 타격");
+					weapon.set_Remove_Bullet_Choice();
+					boss.set_Hp_Minus_Body();
+				}
+				
+				
+				
 			}else {
-				stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/boss_Left_" + stage_1_Boss.set_Image_Rotation() + ".png");
+				System.out.println("보스 머리 타격");
+				weapon.set_Remove_Bullet_Choice();
+				boss.set_Hp_Minus_Leg();
 			}
 			
-			if(stage_1_Boss.get_Boss_Move_Direction() && stage_1_Boss.get_Boss_pattern() == 2)  //2번 패턴 오른쪽으로 돌진할때.
-			{
-				stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/pattern_2/boss_Right_Move_" + stage_1_Boss.set_Image_Rotation_Pattern_2() + ".png");
-			}else if(!stage_1_Boss.get_Boss_Move_Direction() && stage_1_Boss.get_Boss_pattern() == 2){
-				stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/pattern_2/boss_Left_Move_" + stage_1_Boss.set_Image_Rotation_Pattern_2() + ".png");
-			}
 			
-			buffg.drawImage(stage_1Boss_Img, stage_1_Boss.get_Boss_Point().x, stage_1_Boss.get_Boss_Point().y, this);
 			
-			//보스 3번 패턴공격 레이저 공격
-			if(stage_1_Boss.get_Boss_1_Patter3().get_Magic_Direct() == 1 && stage_1_Boss.get_Boss_pattern() == 3){ //오른쪽 공격
-				
-				if(stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() == 0){ //레이저 스탠바이 이미지
-					boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Standby.png");
-				}else{
-					boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Right_" + stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() + ".png");
-				}
-				buffg.drawImage(boss_Attac_Raser, stage_1_Boss.get_Boss_Point().x + stage_1_Boss.get_Boss_Width(), stage_1_Boss.get_Boss_Point().y + 25, this);
-				System.out.println("오른쪽 공격");
-				
-				System.out.println(stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3());
-				
-			}else if(stage_1_Boss.get_Boss_1_Patter3().get_Magic_Direct() == 2 && stage_1_Boss.get_Boss_pattern() == 3){ //왼쪽 공격
-				
-				
-				if(stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() == 0){ //레이저 스탠바이 이미지
-					boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Standby.png");
-				}else{
-				boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Left_" + stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() + ".png");
-				}
-				
-				
-				
-				
-				buffg.drawImage(boss_Attac_Raser, stage_1_Boss.get_Boss_Point().x - 1080 + stage_1_Boss.get_Boss_Width(), stage_1_Boss.get_Boss_Point().y + 25, this);
-				System.out.println("왼쪽 공격");
-				
-			}
 			
 			
 		}
 		
-		
-		
 	}
 	
+	
+	//보스 그리기
+	public void draw_Boss(){
+		//보스 그리기 1판 보스가 존재한다면.
+		for(int i=0; i < boss_List.size(); i++){
+			
+				boss = (Boss) boss_List.get(i);
+				
+				if(boss instanceof Stage_1_Boss){  //보스 리스트에 1스테이지 보스가 들어있다면
+					stage_1_Boss.set_Hero_Point(mainCh.get_Hero_X_Point(), mainCh.get_Hero_Y_Point()); //영웅 위치 정보를 보낸다.
+					buffg.drawRect(stage_1_Boss.get_Boss_Point().x, stage_1_Boss.get_Boss_Point().y, stage_1_Boss.get_Boss_Width(), stage_1_Boss.get_Boss_Height());
+					
+					buffg.drawRect(boss.get_Head_Info()[0], boss.get_Head_Info()[1], boss.get_Head_Info()[2], boss.get_Head_Info()[3]);
+					buffg.drawRect(boss.get_Body_Info()[0], boss.get_Body_Info()[1], boss.get_Body_Info()[2], boss.get_Body_Info()[3]);
+					buffg.drawRect(boss.get_Leg_Info()[0], boss.get_Leg_Info()[1], boss.get_Leg_Info()[2], boss.get_Leg_Info()[3]);
+					
+					
+					//보스 HP
+					if(stage_1_Boss.get_Boss_HP() != 0){
+						boss_HP = tk.getImage("img/boss/boss_HP/HP_" + stage_1_Boss.get_Boss_HP() + ".png");
+						buffg.drawImage(boss_HP, 150, mainCh.get_Hero_Y_Point() - 600, this);
+					}else {
+						boss_List.remove(i);
+					}
+					
+					
+					if(stage_1_Boss.get_Boss_Hero_Look()){
+						stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/boss_Right_" + stage_1_Boss.set_Image_Rotation() + ".png");
+					}else {
+						stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/boss_Left_" + stage_1_Boss.set_Image_Rotation() + ".png");
+					}
+			
+					
+					if(stage_1_Boss.get_Boss_Move_Direction() && stage_1_Boss.get_Boss_pattern() == 2)  //2번 패턴 오른쪽으로 돌진할때.
+					{
+						stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/pattern_2/boss_Right_Move_" + stage_1_Boss.set_Image_Rotation_Pattern_2() + ".png");
+					}else if(!stage_1_Boss.get_Boss_Move_Direction() && stage_1_Boss.get_Boss_pattern() == 2){
+						stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/pattern_2/boss_Left_Move_" + stage_1_Boss.set_Image_Rotation_Pattern_2() + ".png");
+					}
+					
+					//보스가 마법 번개 마법 시전할때
+					if(stage_1_Boss.get_Boss_pattern() == 4){
+						stage_1Boss_Img = tk.getImage("img/boss/stage_1_Boss/boss_Center_"+ stage_1_Boss.set_Boss_Image_Rotation_Pattern_4() + ".png");
+					}
+					
+					buffg.drawImage(stage_1Boss_Img, stage_1_Boss.get_Boss_Point().x, stage_1_Boss.get_Boss_Point().y, this);
+					
+								//보스 3번 패턴공격 레이저 공격
+								if(stage_1_Boss.get_Boss_1_Patter3().get_Magic_Direct() == 1 && stage_1_Boss.get_Boss_pattern() == 3){ //오른쪽 공격
+									
+									if(stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() == 0){ //레이저 스탠바이 이미지
+										boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Standby_" + stage_1_Boss.get_Boss_1_Patter3().raser_StandBy() + ".png");
+										
+									}else{
+										boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Right_" + stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() + ".png");
+									}
+									buffg.drawImage(boss_Attac_Raser, stage_1_Boss.get_Boss_Point().x + stage_1_Boss.get_Boss_Width(), stage_1_Boss.get_Boss_Point().y + 25, this);
+									
+								}else if(stage_1_Boss.get_Boss_1_Patter3().get_Magic_Direct() == 2 && stage_1_Boss.get_Boss_pattern() == 3){ //왼쪽 공격
+									
+									
+									if(stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() == 0){ //레이저 스탠바이 이미지
+										boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Standby_" + stage_1_Boss.get_Boss_1_Patter3().raser_StandBy() + ".png");
+									}else{
+									boss_Attac_Raser = tk.getImage("img/boss/stage_1_Boss/pattern_3/laser_Left_" + stage_1_Boss.get_Boss_1_Patter3().set_Image_Rotation_Pattern_3() + ".png");
+									}
+									
+									buffg.drawImage(boss_Attac_Raser, stage_1_Boss.get_Boss_Point().x - 1080 + stage_1_Boss.get_Boss_Width(), stage_1_Boss.get_Boss_Point().y + 25, this);
+								
+								}
+								
+								//보스 4번 패턴 
+								if(stage_1_Boss.get_Boss_1_Patter4().size() > 0){ //4번 패턴일때 번개 생성
+									
+								
+									for(int j=0; j<stage_1_Boss.get_Boss_1_Patter4().size(); j++){ //번개 생성
+										boss_Attac_Lightning = tk.getImage("img/boss/stage_1_Boss/pattern_4/lightning_" + stage_1_Boss.get_Boss_1_Patter4().get(j).get_Lightning_Shape() +"_"+ stage_1_Boss.get_Boss_1_Patter4().get(j).set_Image_Rotation_Pattern_4() + ".png");
+										
+										buffg.drawImage(boss_Attac_Lightning, stage_1_Boss.get_Boss_1_Patter4().get(j).get_Point_X(), stage_1_Boss.get_Boss_1_Patter4().get(j).get_Point_Y()  , this);
+									}
+									
+									
+								}
+				}
+				
+				
+				crash_Hero_Boss(mainCh, boss); //보스와 메인 캐릭터 충돌 판정
+				
+			}
+	}
 	
 	//스테이지가 시작될때마다 적군 숫자를 파라메터로 받고 생성하고 해야 할 듯 하다.
 	public void enemy_Process(){
