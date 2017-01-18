@@ -20,7 +20,7 @@ public class Stage_1_Boss extends Boss{
 		hero_Point = new Point(0, 0);
 		
 		//1스테이지 기본 보스 위치
-		boss_Point.x = 100;
+		boss_Point.x = 800;
 		boss_Point.y = 1600;
 		
 		//3번 패턴 공격 생성

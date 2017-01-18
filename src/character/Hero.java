@@ -109,7 +109,26 @@ public class Hero extends JPanel{
 		return hp;
 	}
 	
-	
+	//히어로 달리기 가속도
+	public void set_Run_Speed_UP(boolean speed_State){
+			if(speed_State){
+				if(hero_Speed <= 8){ //서있는 상태에서 D 키를 눌러야 가속도가 붙는다.
+				hero_Speed +=2 ;
+				hero_Run_State = true; //달리는중
+				walk_Image_Temp = 7;//달릴때는 6장
+				}
+			}else{
+				if(hero_Speed >5){  
+				hero_Speed--;
+				hero_Run_State = false; //
+				}
+			}
+	}
+	//히어로 달리기 중일때 감속하지 않음
+	boolean hero_Run_State = false;
+	public boolean get_Run_State(){
+		return hero_Run_State;
+	}
 	
 	//히어로 폭 반환
 	public int get_Hero_Width(){
@@ -145,7 +164,6 @@ public class Hero extends JPanel{
 	}
 	
 	
-	
 	//총 발사 이미지 변경 위한 변수 hero 에 있는 이유는 총 발사 이벤트는 캐릭터가 하는 것이기때문에
 	private int trigger_State = 1;
 	
@@ -178,6 +196,9 @@ public class Hero extends JPanel{
 		
 		return right_Walk;
 	}
+	
+	
+	
 	
 	//오른쪽으로 움직이는중인지 체크한다
 	public boolean get_X_Flag_Right(){
@@ -304,7 +325,9 @@ public class Hero extends JPanel{
 	public void stop_Move_Right(int x_Temp){
 		//x_Point = x_Temp;
 		//우측 벽 에 부딪혀서 오른쪽으로 제어 불가능
+		if(!jump_Hero){ //점프중이 아닐때
 		x_Flag_Right = false;
+		}
 		//왼쪽으로 -5 만큼씩 밀어줘야 벽으로 안들어가짐
 		x_Point -= 6;
 		//y_Point 는 약간의 버그 때문에 추가하였음, 몹한테 부딛히면 벽에 붙을 수 있기때문에 미세하게 움직이도록 함
@@ -316,7 +339,9 @@ public class Hero extends JPanel{
 		public void stop_Move_Leftt(int y_Temp){
 			//x_Point = x_Temp;
 			//좌측 벽 에 부딪혀서 오른쪽으로 제어 불가능
+			if(!jump_Hero){ //점프중이 아닐때
 			x_Flag_Left = false;
+			}
 			//오른쪽으로 + 5 만큼씩 밀어줘야 벽으로 안들어가짐
 			x_Point += 6;
 			//y_Point 는 약간의 버그 때문에 추가하였음, 몹한테 부딛히면 벽에 붙을 수 있기때문에 미세하게 움직이도록 함
@@ -369,6 +394,24 @@ public class Hero extends JPanel{
 	public int get_Hero_Y_Point(){
 		return y_Point;
 	}
+	
+	//주인공 백그라운드 값 가감값 반환
+
+	public int get_Back_Y_Point(){ //구름 위치
+		int temp = 0;
+		if(jump_Hero){
+			if(jump_Hero_UP_DOWN){
+				temp = -gSum;
+			}else{
+			}
+		}
+		
+		
+		
+		
+		return temp;
+	}
+	
 	
 	//캐릭터가 처다보고 있는 방향 리턴
 	public boolean get_Face_Side_LFET_RIGHT(){

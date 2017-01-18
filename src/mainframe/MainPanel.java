@@ -34,7 +34,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	//화면 크기
 	int width = 1000;
-	int height = 2000;
+	int height = 2100;
 	
 	//현재 나의 스테이지
 	int stage_Num = 0;
@@ -102,6 +102,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	//보스 HP
 	Image boss_HP;
+	
+	//배경 구름
+	Image Cloude_Png;
+	
 	
 	//더블 버퍼링용 이미지
 	Image buffImage;
@@ -202,7 +206,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		//백그라운드 이미지
-		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_1.png");
+		//background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_1.png");
 		
 		
 		
@@ -272,7 +276,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//재시작 할 때마다 그 맵의 문 위치를 넣어주어야함
 		//portal = new Next_Page_Portal(mainCh.getLocation()); //위치만 지정하면된다.
 		
-		
+		//stage_Num = 6;
 		stage = new Stage();
 		stage.stage_Num(stage_Num); //현재 스테이지를 재성성한다.
 		enemy_List.clear(); //현재 생성된 적군을 다 제거하고 새롭게 생성한다.
@@ -283,7 +287,7 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		
 		
 		//1판 일때 1스테이지 보스 생성
-		if(stage_Num == 1){
+		if(stage_Num == 6){
 			boss = new Boss();
 			System.out.println("a");
 			stage_1_Boss = new Stage_1_Boss();
@@ -306,18 +310,29 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		buffg = buffImage.getGraphics();
 		
 		
-		buffg.setColor(Color.gray);
-		buffg.fillRect(0, 0, width, height);
+		//buffg.setColor(Color.white);
+		//buffg.fillRect(0, 0, width, height);
 		
+		
+	
+		
+		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_0.png"); //배경 그리기 별
 		//배그라운드 이미지
-		buffg.drawImage(background_Img, 0, 1000, this);
+		buffg.drawImage(background_Img, 0, 700, this);
+		
+		
 		
 		if(Image_Init_Flag){
+		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_2_Back.png"); //배경 동적인 움직임 구름 여기서 버퍼링에 얹어 줘야 렉이 덜걸린다
 		Image_Init(); //이미지 버퍼링
 		Image_Init_Flag = false;
 		}
 		
+		//배그라운드 이미지
+				//buffg.drawImage(background_Img, 0, 500 , this);
+		
 		update(g);
+		
 		
 
 		
@@ -330,9 +345,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 	public void update(Graphics g){
 		
 		//색깔 입히기	
-		buffg.setColor(Color.gray);
+		//buffg.setColor(Color.gray);
 		//buffg.fillRect(0, 0, width, height);
-		buffg.setColor(Color.black);
+		//buffg.setColor(Color.black);
 		
 		
 		
@@ -377,8 +392,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		//화면에 버퍼에 그린 그림을 가져와 그리기
 		g.drawImage(buffImage, 0, (height-1300)-vertical_View, this);
 	}
-	
+
 	public void draw_Hero(){
+		//D키가 때졋을때 서서히 감속 or 공중에서 서서히 감속
+		if(!mainCh.get_Run_State() && !mainCh.get_Jump_Hero()){
+		mainCh.set_Run_Speed_UP(false);
+		}
 		
 		//프레임에 저장된 .png 이미지를 그려넣습니다. 영웅 그려넣기
 		buffg.drawImage(hero_Png, mainCh.get_Hero_X_Point()-7, mainCh.get_Hero_Y_Point()-17, this);
@@ -407,9 +426,10 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 						//오른쪽으로 점프중일때
 						hero_Png = tk.getImage("img/hero_Jump_Right.png"); //
 					}
-					
+
 					Hero_View_Png = tk.getImage("img/Hero_View_Right/Hero_View_Right_" + mainCh.get_View_Temp_Int_Plus() + ".png");
-					//buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1050,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전
+
+					buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1050,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전
 					
 				}else{//왼쪽 방향 보고 있을때
 					//주인공의 기본 이미지 삽입
@@ -427,7 +447,8 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}
 					
 					Hero_View_Png = tk.getImage("img/Hero_View_Left/Hero_View_Left_" + mainCh.get_View_Temp_Int_Minus() + ".png");
-					//buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1500,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전	
+					
+					buffg.drawImage(Hero_View_Png, mainCh.get_Hero_X_Point()- 1500,  mainCh.get_Hero_Y_Point() - 990, this); //영웅 암전	
 					
 				}
 				
@@ -442,14 +463,17 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}else if(!mainCh.get_Sit_State()){//오른쪽으로 앉아서 갈때
 						hero_Png = tk.getImage("img/Hero_Move_Right_Down/hero_Move_Right_"+mainCh.set_Right_Walk_Plus()+".png"); //오른쪽으로 앉아서 갈때 걸어다니는 이미지
 					}else{
-					hero_Png = tk.getImage("img/Hero_Move_Right/hero_Right_"+mainCh.set_Right_Walk_Plus()+".png"); //오른쪽으로 걸어다니는 이미지
-					
+						hero_Png = tk.getImage("img/Hero_Move_Right/hero_Right_"+mainCh.set_Right_Walk_Plus()+".png"); //오른쪽으로 걸어다니는 이미지
 					}
 					
+					//오른쪽으로 띄어갈때
+					if(mainCh.get_Run_State()){
+						hero_Png = tk.getImage("img/Hero_Move_Right/hero_Right_Run_"+mainCh.set_Right_Walk_Plus()+".png"); 
+					}
 					
 				}else if(mainCh.get_X_Flag_Left()){
 					if(mainCh.get_Jump_Hero()){
-						//오른쪽으로 점프중일때
+						//왼쪽으로 점프중일때
 						hero_Png = tk.getImage("img/hero_Jump_Left.png"); //
 					}else if(!mainCh.get_Sit_State()){ //왼쪽으로 앉아서 갈때
 						hero_Png = tk.getImage("img/Hero_Move_Left_Down/hero_Move_Left_"+mainCh.set_Right_Walk_Plus()+".png");
@@ -457,6 +481,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					else{
 					hero_Png = tk.getImage("img/Hero_Move_Left/hero_Left_"+mainCh.set_Right_Walk_Plus()+".png"); //왼쪽으로 걸어다니는 이미지
 					}
+					
+					//왼쪽으로 띄어갈때
+					if(mainCh.get_Run_State()){
+						hero_Png = tk.getImage("img/Hero_Move_Left/hero_Left_Run_"+mainCh.set_Right_Walk_Plus()+".png"); 
+					}
+					
 				}
 				//왼쪽으로 걸어갈때
 				
@@ -581,18 +611,6 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				}
 				
 				
-				
-			
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
 	}
 	
 	
@@ -646,7 +664,9 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			stage_Num++; //다음 스테이지로 넘어감 //현 위치 초기화 1스테이지
 			//System.out.println();
 			//스테이지넘버를 한번 반영해서 스테이지를 만든다.
-			//stage_Num = 1;
+			//
+			
+			//stage_Num = 4;
 			stage.map_Stage(stage_Num);
 
 			//기본 적군 워커 생성
@@ -676,31 +696,50 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 			
 		//background_Img = tk.getImage("img/back_Ground/stage1/back_Ground_Stage_1_"+ background_Move() +".png");  //배경 그리기
-			background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_1.png"); //배경 그리기
+		//background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_1.png"); //배경 그리기
 		ground_Png = tk.getImage("img/ground/stage/stage_1.png"); //바닥 그리기
-		buffg.drawImage(ground_Png, 0, 1785, this);
+		buffg.drawImage(ground_Png, 0, 1805, this);
 		}
 		//2스테이지
 		if(stage_Num == 2){
-		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_2.png"); //배경 그리기
+		//background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_2.png"); //배경 그리기
 		ground_Png = tk.getImage("img/ground/stage/stage_2.png"); //바닥 그리기
 		buffg.drawImage(ground_Png, 0, 1485, this);
 		}
 		
 		//3스테이지
 		if(stage_Num == 3){
-		background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_2.png"); //배경 그리기
+		//background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_2.png"); //배경 그리기
 		ground_Png = tk.getImage("img/ground/stage/stage_1.png"); //바닥 그리기
 		buffg.drawImage(ground_Png, 0, 1785, this);
 		}
 		
 		
-		//6스테이지
-		if(stage_Num == 6){
-			
-			ground_Png = tk.getImage("img/ground/stage/stage_1.png"); //바닥 그리기
-			buffg.drawImage(ground_Png, 0, 1785, this);
+		//4스테이지
+		if(stage_Num == 4){
+		//background_Img = tk.getImage("img/back_Ground/back_Ground_Stage_2.png"); //배경 그리기
+		ground_Png = tk.getImage("img/ground/stage/stage_4.png"); //바닥 그리기
+		buffg.drawImage(ground_Png, 0, 500, this);
 		}
+		
+		if(stage_Num == 5){
+			ground_Png = tk.getImage("img/ground/stage/stage_5.png"); //바닥 그리기
+			buffg.drawImage(ground_Png, 0, 1605, this);
+		}
+
+		if(stage_Num == 6){
+			ground_Png = tk.getImage("img/ground/stage/stage_6.png"); //바닥 그리기
+			buffg.drawImage(ground_Png, 0, 1805, this);
+		}
+		
+		
+		//구름
+		Cloude_Png = tk.getImage("img/back_Ground/clode_1.png");
+		buffg.drawImage(Cloude_Png, 100,  1500  + mainCh.get_Back_Y_Point() , this);
+		
+		
+		
+	
 		
 		for(int i=0; i<stage.get_Block().size(); i++){
 			
@@ -715,13 +754,13 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 				//높이가 높은 벽일때
 				if(stage.get_Block().get(i).get_Height() > 60){
 					ground_Png = tk.getImage("img/ground/ground_Img_" + ground_Img_Temp + ".png");
-					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
+					//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
 					
 					ground_Temp_X+=20; //10범위마다 하나씩 그림
 					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
 						ground_Png = tk.getImage("img/ground/ground_Img_" + (ground_Img_Temp +1)+ ".png");
 						//ground_Png = tk.getImage("img/ground/ground_Img_51.png"); //벽 매무새
-						buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
+						//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y-25, this);
 						break;
 					}
 					ground_Img_Temp++;
@@ -730,12 +769,12 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}
 				}else{ //높이가 낮은 벽일때
 					ground_Png = tk.getImage("img/ground_Img/ground_Img2_" + ground_Img_Temp + ".png");
-					buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
+					//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
 					
 					ground_Temp_X+=10; //10범위마다 하나씩 그림
 					if(ground_Temp_X+20 >= (stage.get_Block().get(i).get_Widht())+stage.get_Block().get(i).get_Left_Top_Point().x){ //width 길이를 20으로 나누어서 20단위로 ground 이미지를 넣는다.
 						ground_Png = tk.getImage("img/ground_Img/ground_Img2_11.png"); //벽 매무새
-						buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
+						//buffg.drawImage(ground_Png, ground_Temp_X, stage.get_Block().get(i).get_Left_Top_Point().y, this);
 						break;
 					}
 					ground_Img_Temp++;
@@ -744,12 +783,14 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 					}
 				}
 				 //fillRect
-				//buffg.fillRect(stage.get_Block().get(i).get_Left_Top_Point().x,
-					//	stage.get_Block().get(i).get_Left_Top_Point().y,
-						//stage.get_Block().get(i).get_Widht(), 
-						//stage.get_Block().get(i).get_Height());
+				//buffg.drawRect(stage.get_Block().get(i).get_Left_Top_Point().x,
+				//		stage.get_Block().get(i).get_Left_Top_Point().y,
+			//			stage.get_Block().get(i).get_Widht(), 
+				//		stage.get_Block().get(i).get_Height());
 			}
-			
+
+
+		
 			
 			
 			//충돌 함수 호출 1이면 벽과 캐릭터
@@ -1810,6 +1851,14 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 			mainCh.set_Hero_X_Right();
 			break;
 			
+		case KeyEvent.VK_D :
+			
+			//서있으면서 땅에 붙어있을때
+			if(!mainCh.get_Jump_Hero() && mainCh.get_Sit_State()){ //점프 중이 아닐때
+			mainCh.set_Run_Speed_UP(true); //달리기
+			}
+			break;
+			
 		case KeyEvent.VK_A :
 			
 			
@@ -1920,8 +1969,14 @@ class MainPanel extends JPanel implements KeyListener, Runnable{
 		case KeyEvent.VK_RIGHT :
 			mainCh.set_Hero_X_Right_Stop();
 			break;
+	
+		case KeyEvent.VK_D :
+			
+			//서있으면서 땅에 붙어있을때
+			mainCh.set_Run_Speed_UP(false);
 			
 			
+			break;
 			
 			
 		case KeyEvent.VK_A :
